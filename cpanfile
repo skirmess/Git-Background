@@ -16,7 +16,7 @@ on test => sub {
     requires 'Cwd';
     requires 'Exporter';
     requires 'File::Basename';
-    requires 'File::Path';
+    requires 'File::Path', '2.07';
     requires 'File::Spec';
     requires 'File::Spec::Functions';
     requires 'Test::Fatal';
