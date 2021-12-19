@@ -219,13 +219,17 @@ sub _slurp {
     my ($fh) = @_;
 
     $fh->seek( 0, SEEK_SET ) or Carp::croak "Cannot seek $fh: $!";
-    my @text = map { my $x = $_; $x =~ s{\r?\n?\z}{}xsm; $x } $fh->getlines;
+    my @lines = $fh->getlines;
+
     if ( $fh->error ) {
         Carp::croak "Cannot read $fh: $!";
     }
 
-    chomp @text;
-    return @text;
+    for my $line (@lines) {
+        $line =~ s{\r?\n?\z}{}xsm;
+    }
+
+    return @lines;
 }
 
 1;

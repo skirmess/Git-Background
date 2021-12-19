@@ -34,7 +34,7 @@ isa_ok( $obj->{_run}{_stdout}, 'File::Temp',       '... stdout' );
 isa_ok( $obj->{_run}{_proc},   'Proc::Background', '... and _proc' );
 
 my ( $stdout, $stderr, $rc ) = $obj->get;
-is_deeply( $stdout, ["git version 2.33.1"], 'get() returns correct stdout' );
+is_deeply( $stdout, ['git version 2.33.1'], 'get() returns correct stdout' );
 is_deeply( $stderr, [],                     '... stderr' );
 is( $rc, 0, '... and exit code' );
 ok( !exists $obj->{_run}, '_run no longer exists' );
@@ -42,7 +42,7 @@ ok( !exists $obj->{_run}, '_run no longer exists' );
 #
 is( $obj->run('--version'), $obj, 'run() returns itself' );
 ($stdout) = $obj->get;
-is_deeply( $stdout, ["git version 2.33.1"], 'get() returns correct stdout' );
+is_deeply( $stdout, ['git version 2.33.1'], 'get() returns correct stdout' );
 
 #
 note('stdout and stderr');
