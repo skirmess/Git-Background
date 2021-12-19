@@ -6,10 +6,10 @@ use warnings;
 
 our $VERSION = '0.001';
 
-use Carp qw(croak);
+use Carp ();
 use File::Temp qw(:seekable);
 use Proc::Background 1.30;
-use Scalar::Util qw(blessed reftype);
+use Scalar::Util ();
 
 use Git::Background::Exception;
 
@@ -27,7 +27,7 @@ sub new {
     bless $self, $class;
 
     # first argument is a scalar or object
-    if ( @_ && ( ref $_[0] eq ref q{} || defined blessed $_[0] ) ) {
+    if ( @_ && ( ref $_[0] eq ref q{} || defined Scalar::Util::blessed $_[0] ) ) {
         my $arg = shift @_;
 
         # stringify objects (e.g. Path::Tiny)
@@ -38,12 +38,12 @@ sub new {
     if ( @_ && ref $_[0] eq ref {} ) {
         my $args = shift @_;
 
-        croak 'Cannot specify dir as positional argument and in argument hash' if exists $self->{_dir} && exists $args->{dir};
+        Carp::croak 'Cannot specify dir as positional argument and in argument hash' if exists $self->{_dir} && exists $args->{dir};
         _set_args( $self, $args );
     }
 
     # unknown args
-    croak 'usage: new( [DIR], [ARGS] )' if @_;
+    Carp::croak 'usage: new( [DIR], [ARGS] )' if @_;
 
     return $self;
 }
@@ -52,7 +52,7 @@ sub is_ready {
     my ($self) = @_;
 
     # run() was never called
-    croak q{Nothing run() yet} if !defined $self->{_run};
+    Carp::croak q{Nothing run() yet} if !defined $self->{_run};
 
     # the process is still alive
     return !$self->{_run}{_proc}->alive;
@@ -61,7 +61,7 @@ sub is_ready {
 sub get {
     my ($self) = @_;
 
-    croak q{Nothing run() yet} if !defined $self->{_run};
+    Carp::croak q{Nothing run() yet} if !defined $self->{_run};
 
     my $run = delete $self->{_run};
 
@@ -78,7 +78,7 @@ sub get {
     # git died by a signal
     if ( $run->{_proc}->exit_signal ) {
         warn $stderr;
-        croak 'Git was terminated by a signal';
+        Carp::croak 'Git was terminated by a signal';
     }
 
     # slurp back stdout
@@ -115,7 +115,7 @@ sub get {
 sub run {
     my ( $self, @cmd ) = @_;
 
-    croak 'You need to get() the result of the last run() first' if defined $self->{_run};
+    Carp::croak 'You need to get() the result of the last run() first' if defined $self->{_run};
 
     # Create run "object"
     my $run = {
@@ -165,7 +165,7 @@ sub stdout {
 sub version {
     my ( $self, $args ) = @_;
 
-    if ( !defined blessed $self ) {
+    if ( !defined Scalar::Util::blessed $self ) {
         $self = $self->new;
     }
 
@@ -211,11 +211,11 @@ sub _set_args {
 
     if ( delete $keys{git} ) {
         my $git = $args->{git};
-        $target->{_git} = [ ( defined reftype $git && reftype $git eq reftype [] ) ? @{ $args->{git} } : $git ];
+        $target->{_git} = [ ( defined Scalar::Util::reftype $git && Scalar::Util::reftype $git eq Scalar::Util::reftype [] ) ? @{ $args->{git} } : $git ];
     }
 
     my @keys = sort keys %keys;
-    croak 'Unknown argument' . ( @keys > 1 ? 's' : q{} ) . q{: '} . join( q{', '}, @keys ) . q{'} if @keys;
+    Carp::croak 'Unknown argument' . ( @keys > 1 ? 's' : q{} ) . q{: '} . join( q{', '}, @keys ) . q{'} if @keys;
 
     return;
 }
@@ -223,10 +223,10 @@ sub _set_args {
 sub _slurp {
     my ($fh) = @_;
 
-    $fh->seek( 0, SEEK_SET ) or croak "Cannot seek $fh: $!";
+    $fh->seek( 0, SEEK_SET ) or Carp::croak "Cannot seek $fh: $!";
     my $text = do { local $/; scalar readline $fh };
     if ( $fh->error ) {
-        croak "Cannot read $fh: $!";
+        Carp::croak "Cannot read $fh: $!";
     }
 
     if ( !defined $text ) {
