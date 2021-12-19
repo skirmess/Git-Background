@@ -4,7 +4,6 @@ use 5.006;
 use strict;
 use warnings;
 
-use Test::Fatal;
 use Test::More 0.88;
 
 use Scalar::Util qw(blessed);
@@ -17,18 +16,6 @@ use lib File::Spec->catdir( File::Basename::dirname( Cwd::abs_path __FILE__ ), '
 use Local::Thing;
 
 use Git::Background;
-
-{
-    my $target = {};
-    my $args   = { invalid_arg => 1 };
-    like( exception { Git::Background::_set_args( $target, $args ); }, qr{\A\QUnknown argument: 'invalid_arg' \E}, 'throws an exception on an invalid argument' );
-}
-
-{
-    my $target = {};
-    my $args   = { invalid_arg => 1, another_arg => 1 };
-    like( exception { Git::Background::_set_args( $target, $args ); }, qr{\A\QUnknown arguments: 'another_arg', 'invalid_arg' \E}, '... or multiple' );
-}
 
 {
     my $target = {};

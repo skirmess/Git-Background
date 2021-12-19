@@ -4,8 +4,6 @@ use 5.006;
 use strict;
 use warnings;
 
-use Test::Fatal;
-use Test::MockModule;
 use Test::More 0.88;
 
 use File::Temp qw(:seekable);
@@ -25,11 +23,6 @@ use Git::Background;
 
     my @data = Git::Background::_slurp($fh);
     is_deeply( \@data, [ 'hello', 'world' ], '_slurp slurps' );
-
-    my $mock = Test::MockModule->new('File::Temp');
-    $mock->mock( 'seek', 0 );
-
-    like( exception { Git::Background::_slurp($fh) }, qr{\A\QCannot seek\E}, '... throws an error if file cannot be seeked' );
 }
 
 {
@@ -37,11 +30,6 @@ use Git::Background;
 
     my @data = Git::Background::_slurp($fh);
     is_deeply( \@data, [], '_slurp slurps' );
-
-    my $mock = Test::MockModule->new('File::Temp');
-    $mock->mock( 'error', 1 );
-
-    like( exception { Git::Background::_slurp($fh) }, qr{\A\QCannot read\E}, '... throws an error if file cannot be read' );
 }
 
 #

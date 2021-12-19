@@ -9,8 +9,6 @@ build_requires:
   File::Path: '2.07'
   File::Spec: '0'
   File::Spec::Functions: '0'
-  Test::Fatal: '0'
-  Test::MockModule: '0'
   Test::More: '0.88'
   constant: '0'
   lib: '0'
@@ -18,7 +16,7 @@ build_requires:
 configure_requires:
   ExtUtils::MakeMaker: '0'
   perl: '5.006'
-dynamic_config: 0
+dynamic_config: 1
 generated_by: 'Dist::Zilla, CPAN::Meta::Converter'
 license: open_source
 meta-spec:

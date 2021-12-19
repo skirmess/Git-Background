@@ -19,8 +19,6 @@ on test => sub {
     requires 'File::Path', '2.07';
     requires 'File::Spec';
     requires 'File::Spec::Functions';
-    requires 'Test::Fatal';
-    requires 'Test::MockModule';
     requires 'Test::More', '0.88';
     requires 'constant';
     requires 'lib';
@@ -28,6 +26,9 @@ on test => sub {
 
 on develop => sub {
     requires 'CPAN';
+    requires 'Cwd';
+    requires 'File::Basename';
+    requires 'File::Spec';
     requires 'JSON::PP';
     requires 'Module::Info';
     requires 'Path::Tiny';
@@ -126,8 +127,10 @@ on develop => sub {
     requires 'Test::CleanNamespaces';
     requires 'Test::DistManifest', '1.003';
     requires 'Test::EOL';
+    requires 'Test::Fatal';
     requires 'Test::Kwalitee';
     requires 'Test::MinimumVersion', '0.008';
+    requires 'Test::MockModule';
     requires 'Test::Mojibake';
     requires 'Test::More', '0.88';
     requires 'Test::NoTabs';
@@ -144,6 +147,7 @@ on develop => sub {
     requires 'Test::XTFiles';
     requires 'XT::Files';
     requires 'XT::Util';
+    requires 'constant';
     requires 'lib';
 };
 feature 'dzil', 'Dist::Zilla' => sub {
@@ -217,7 +221,6 @@ on develop => sub {
         requires 'Dist::Zilla::Util::BundleInfo';
         requires 'Dist::Zilla::Util::ExpandINI::Reader';
         requires 'File::Compare';
-        requires 'File::Spec';
         requires 'File::pushd';
         requires 'List::Util';
         requires 'Module::CPANfile', '1.1004';
@@ -231,7 +234,6 @@ on develop => sub {
         requires 'Safe::Isa';
         requires 'Term::ANSIColor';
         requires 'YAML::Tiny';
-        requires 'constant';
         requires 'namespace::autoclean', '0.09';
         requires 'perl', '5.010';
         requires 'version', '0.77';

@@ -5,7 +5,6 @@ use strict;
 use warnings;
 
 use Test::More 0.88;
-use Test::Fatal;
 
 use Scalar::Util qw(blessed);
 
@@ -51,11 +50,6 @@ note(q{new( { git => [qw(nice -19 git)] } )});
     ok( !exists $obj->{_dir}, 'dir is not set' );
 }
 
-note(q{new( { invalid_argument => 17 } )});
-{
-    like( exception { CLASS()->new( { invalid_argument => 17 } ) }, qr{\QUnknown argument: 'invalid_argument'\E}, 'new throws an exception for an invalid argument' );
-}
-
 note('new($dir)');
 {
     my $dir = tempdir();
@@ -78,12 +72,6 @@ note(q{new( $dir, { fatal => 0, git => 'my-git' } )});
     is( $obj->{_dir}, $dir, 'dir is set' );
 }
 
-note(q{new( $dir, { dir => $dir } )});
-{
-    my $dir = tempdir();
-    like( exception { CLASS()->new( $dir, { dir => $dir } ); }, qr{\A\QCannot specify dir as positional argument and in argument hash\E}, 'throws an exception if dir is specified twice' );
-}
-
 note('new($dir_obj)');
 {
     my $dir = tempdir();
@@ -98,13 +86,6 @@ note('new($dir_obj)');
     is_deeply( $obj->{_git}, ['git'], 'git is configured to git' );
     is( $obj->{_dir}, $dir, 'dir is set' );
     ok( !blessed $obj->{_dir}, 'dir is not an object' );
-}
-
-note(q{to many/wrong arguments});
-{
-    my $dir = tempdir();
-    like( exception { CLASS()->new( $dir, { fatal => 0, git => 'my-git' }, 'hello world' ) }, qr{\Qusage: new( [DIR], [ARGS] )\E}, 'new throws an exception with to many arguments' );
-    like( exception { CLASS()->new( $dir, 'hello world' ) }, qr{\Qusage: new( [DIR], [ARGS] )\E}, 'new throws an exception with wrong argument' );
 }
 
 #
