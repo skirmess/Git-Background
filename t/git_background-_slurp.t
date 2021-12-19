@@ -23,8 +23,8 @@ use Git::Background;
     my $fh = File::Temp->new( DIR => tempdir() );
     print {$fh} "hello\nworld";
 
-    my $data = Git::Background::_slurp($fh);
-    is( $data, "hello\nworld", '_slurp slurps' );
+    my @data = Git::Background::_slurp($fh);
+    is_deeply( \@data, [ 'hello', 'world' ], '_slurp slurps' );
 
     my $mock = Test::MockModule->new('File::Temp');
     $mock->mock( 'seek', 0 );
@@ -35,8 +35,8 @@ use Git::Background;
 {
     my $fh = File::Temp->new( DIR => tempdir() );
 
-    my $data = Git::Background::_slurp($fh);
-    is( $data, q{}, '_slurp slurps' );
+    my @data = Git::Background::_slurp($fh);
+    is_deeply( \@data, [], '_slurp slurps' );
 
     my $mock = Test::MockModule->new('File::Temp');
     $mock->mock( 'error', 1 );

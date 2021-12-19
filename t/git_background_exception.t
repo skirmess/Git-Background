@@ -15,8 +15,8 @@ note('with output');
     my $obj = CLASS()->new(
         {
             exit_code => 7,
-            stderr    => "an error\nhappend",
-            stdout    => "text on\nstdout\n",
+            stderr    => [ 'an error', 'happend' ],
+            stdout    => [ 'text on',  'stdout' ],
         },
     );
     isa_ok( $obj, CLASS(), 'new returned object' );
@@ -24,10 +24,10 @@ note('with output');
     is( $obj->{_exit_code}, 7, 'contains exit_code' );
     is( $obj->exit_code,    7, 'can be read by ->exit_code' );
 
-    is( $obj->{_stderr}, "an error\nhappend", 'contains correct stderr' );
+    is_deeply( $obj->{_stderr},  [ 'an error', 'happend' ], 'contains correct stderr' );
     is_deeply( [ $obj->stderr ], [ 'an error', 'happend' ], 'can be read by ->stderr' );
 
-    is_deeply( $obj->{_stdout},  "text on\nstdout\n",     'contains correct stdout' );
+    is_deeply( $obj->{_stdout},  [ 'text on', 'stdout' ], 'contains correct stdout' );
     is_deeply( [ $obj->stdout ], [ 'text on', 'stdout' ], 'can be read by ->stdout' );
 
     is( "$obj",           "an error\nhappend", 'object stringifies to stderr' );
@@ -39,8 +39,8 @@ note('without output');
     my $obj = CLASS()->new(
         {
             exit_code => 11,
-            stderr    => q{},
-            stdout    => q{},
+            stderr    => [],
+            stdout    => [],
         },
     );
     isa_ok( $obj, CLASS(), 'new returned object' );
@@ -48,10 +48,10 @@ note('without output');
     is( $obj->{_exit_code}, 11, 'contains exit_code' );
     is( $obj->exit_code,    11, 'can be read by ->exit_code' );
 
-    is( $obj->{_stderr}, q{}, 'contains no stderr' );
+    is_deeply( $obj->{_stderr},  [], 'contains no stderr' );
     is_deeply( [ $obj->stderr ], [], 'can be read by ->stderr' );
 
-    is( $obj->{_stdout}, q{}, 'contains no stdout' );
+    is_deeply( $obj->{_stdout},  [], 'contains no stdout' );
     is_deeply( [ $obj->stdout ], [], 'can be read by ->stdout' );
 
     is( "$obj",           'git exited with fatal exit code 11 but had no output to stderr', 'object stringifies to correct message' );
@@ -63,8 +63,8 @@ note('boolean');
     my $obj = CLASS()->new(
         {
             exit_code => 13,
-            stderr    => '0',
-            stdout    => q{},
+            stderr    => ['0'],
+            stdout    => [],
         },
     );
     isa_ok( $obj, CLASS(), 'new returned object' );

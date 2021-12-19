@@ -73,17 +73,17 @@ sub get {
 
     # slurp back stderr
     my $stderr_fh = $run->{_stderr};
-    my $stderr    = _slurp($stderr_fh);
+    my @stderr    = _slurp($stderr_fh);
 
     # git died by a signal
     if ( $run->{_proc}->exit_signal ) {
-        warn $stderr;    ## no critic (ErrorHandling::RequireCarping)
+        warn join "\n", @stderr;    ## no critic (ErrorHandling::RequireCarping)
         Carp::croak 'Git was terminated by a signal';
     }
 
     # slurp back stdout
     my $stdout_fh = $run->{_stdout};
-    my $stdout    = _slurp($stdout_fh);
+    my @stdout    = _slurp($stdout_fh);
 
     # get exit code and signal from git process
     my $exit_code = $run->{_proc}->exit_code;
@@ -91,8 +91,8 @@ sub get {
     ## no critic (ErrorHandling::RequireCarping)
     die Git::Background::Exception->new(
         {
-            stdout    => $stdout,
-            stderr    => $stderr,
+            stdout    => \@stdout,
+            stderr    => \@stderr,
             exit_code => $exit_code,
         },
       )
@@ -107,7 +107,7 @@ sub get {
       || $exit_code == 129;
 
     # $run goes out of scope and the file handles and the proc object are freed
-    return ( $stdout, $stderr, $exit_code );
+    return ( \@stdout, \@stderr, $exit_code );
 }
 
 sub run {
@@ -153,9 +153,8 @@ sub run {
 sub stdout {
     my ($self) = @_;
 
-    my ($stdout) = $self->get;
-    my @stdout   = split /\n/xsm, $stdout;
-    return @stdout;
+    my ($stdout_ref) = $self->get;
+    return @{$stdout_ref};
 }
 
 sub version {
@@ -220,16 +219,13 @@ sub _slurp {
     my ($fh) = @_;
 
     $fh->seek( 0, SEEK_SET ) or Carp::croak "Cannot seek $fh: $!";
-    my $text = do { local $/; scalar readline $fh };    ## no critic (Variables::RequireInitializationForLocalVars)
+    my @text = map { my $x = $_; $x =~ s{\r?\n?\z}{}xsm; $x } $fh->getlines;
     if ( $fh->error ) {
         Carp::croak "Cannot read $fh: $!";
     }
 
-    if ( !defined $text ) {
-        $text = q{};
-    }
-
-    return $text;
+    chomp @text;
+    return @text;
 }
 
 1;
@@ -349,12 +345,12 @@ process.
 
     my $git = Git::Background->new($dir);
     # dies, because no run was called
-    my ($stdout) = $git->get;
+    my ($stdout_ref) = $git->get;
 
     my $git = Git::Background->new($dir);
     $git->run('status', '-s');
     # waits for 'git status -s' to finish
-    my ($stdout, $stderr, $rc) = $git->get;
+    my ($stdout_ref, $stderr_ref, $rc) = $git->get;
 
 C<wait> throws an exception if I cannot read the output of Git or if the Git
 process was terminated by a signal.
@@ -381,11 +377,11 @@ stdout.
 
 Because this command calls C<get>, the same exceptions can be thrown.
 
-Note: C<get> returns all the output lines in a single scalar, C<stdout>
-returns splits them up and returns a list.
+Note: C<get> returns all the output lines as array reference, C<stdout>
+returns a list.
 
     my $git = Git::Background->new($dir);
-    my ($stdout) = $git->run( qw(status -s) )->get;
+    my ($stdout_ref) = $git->run( qw(status -s) )->get;
     my @stdout = $git->run( qw(status -s) )->stdout;
 
 =head2 version( [ARGS] )

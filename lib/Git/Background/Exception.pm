@@ -34,25 +34,17 @@ sub exit_code {
 sub stderr {
     my ($self) = @_;
 
-    my $stderr = $self->{_stderr};
-    if ( !defined $stderr ) {
-        $stderr = q{};
-    }
-
-    my @stderr = split /\n/xsm, $stderr;
-    return @stderr;
+    my $stderr_ref = $self->{_stderr};
+    return if !defined $stderr_ref;
+    return @{$stderr_ref};
 }
 
 sub stdout {
     my ($self) = @_;
 
-    my $stdout = $self->{_stdout};
-    if ( !defined $stdout ) {
-        $stdout = q{};
-    }
-
-    my @stdout = split /\n/xsm, $stdout;
-    return @stdout;
+    my $stdout_ref = $self->{_stdout};
+    return if !defined $stdout_ref;
+    return @{$stdout_ref};
 }
 
 sub _stringify {
@@ -113,11 +105,11 @@ The exit code returned by Git.
 
 =head3 stderr (required)
 
-A string containing all the output printed to STDERR by Git.
+An array reference containing all the output lines printed to STDERR by Git.
 
 =head3 stdout (required)
 
-A string containing all the output printed to STDOUT by Git.
+An array reference containing all the output lines printed to STDOUT by Git.
 
 =head2 exit_code
 

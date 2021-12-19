@@ -106,12 +106,12 @@ process.
 
     my $git = Git::Background->new($dir);
     # dies, because no run was called
-    my ($stdout) = $git->get;
+    my ($stdout_ref) = $git->get;
 
     my $git = Git::Background->new($dir);
     $git->run('status', '-s');
     # waits for 'git status -s' to finish
-    my ($stdout, $stderr, $rc) = $git->get;
+    my ($stdout_ref, $stderr_ref, $rc) = $git->get;
 
 `wait` throws an exception if I cannot read the output of Git or if the Git
 process was terminated by a signal.
@@ -138,11 +138,11 @@ stdout.
 
 Because this command calls `get`, the same exceptions can be thrown.
 
-Note: `get` returns all the output lines in a single scalar, `stdout`
-returns splits them up and returns a list.
+Note: `get` returns all the output lines as array reference, `stdout`
+returns a list.
 
     my $git = Git::Background->new($dir);
-    my ($stdout) = $git->run( qw(status -s) )->get;
+    my ($stdout_ref) = $git->run( qw(status -s) )->get;
     my @stdout = $git->run( qw(status -s) )->stdout;
 
 ## version( \[ARGS\] )

@@ -38,9 +38,9 @@ isa_ok( $obj->{_run}{_stdout}, 'File::Temp',       '... stdout' );
 isa_ok( $obj->{_run}{_proc},   'Proc::Background', '... and _proc' );
 
 my ( $stdout, $stderr, $rc ) = $obj->get;
-is( $stdout, "git version 2.33.1\n", 'get() returns correct stdout' );
-is( $stderr, q{},                    '... stderr' );
-is( $rc,     0,                      '... and exit code' );
+is_deeply( $stdout, ["git version 2.33.1"], 'get() returns correct stdout' );
+is_deeply( $stderr, [],                     '... stderr' );
+is( $rc, 0, '... and exit code' );
 
 like( exception { $obj->is_ready }, qr{\QNothing run() yet\E}, 'is_ready throws an exception after get() is run' );
 ok( !exists $obj->{_run}, '_run no longer exists' );
@@ -48,16 +48,16 @@ ok( !exists $obj->{_run}, '_run no longer exists' );
 #
 is( $obj->run('--version'), $obj, 'run() returns itself' );
 ($stdout) = $obj->get;
-is( $stdout, "git version 2.33.1\n", 'get() returns correct stdout' );
+is_deeply( $stdout, ["git version 2.33.1"], 'get() returns correct stdout' );
 
 #
 note('stdout and stderr');
 is( $obj->run( '-ostdout line 1', '-estderr line 1', '-estderr line 2', '-ostdout line 2' ), $obj, 'run() returns itself' );
 
 ( $stdout, $stderr, $rc ) = $obj->get;
-is( $stdout, "stdout line 1\nstdout line 2\n", 'get() returns correct stdout' );
-is( $stderr, "stderr line 1\nstderr line 2\n", '... stderr' );
-is( $rc,     0,                                '... and exit code' );
+is_deeply( $stdout, [ 'stdout line 1', 'stdout line 2' ], 'get() returns correct stdout' );
+is_deeply( $stderr, [ 'stderr line 1', 'stderr line 2' ], '... stderr' );
+is( $rc, 0, '... and exit code' );
 
 #
 note('stdout()');
@@ -90,8 +90,8 @@ isa_ok( $obj->{_run}{_proc},   'Proc::Background', '... and _proc' );
 
 ( $stdout, $stderr, $rc ) = $obj->get;
 
-is_deeply( $stdout, q{},         'get() returns correct stdout' );
-is_deeply( $stderr, "error 1\n", '... stderr' );
+is_deeply( $stdout, [],          'get() returns correct stdout' );
+is_deeply( $stderr, ['error 1'], '... stderr' );
 is( $rc, 77, '... exit code' );
 
 #
