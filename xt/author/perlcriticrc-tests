@@ -1,0 +1,5 @@
+[-RegularExpressions::RequireDotMatchAnything]
+[-RegularExpressions::RequireExtendedFormatting]
+[-RegularExpressions::RequireLineBoundaryMatching]
+[-Subroutines::ProtectPrivateSubs]
+[-ValuesAndExpressions::RequireInterpolationOfMetachars]

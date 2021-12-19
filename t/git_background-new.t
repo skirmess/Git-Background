@@ -14,10 +14,10 @@ use File::Basename ();
 use File::Spec     ();
 use lib File::Spec->catdir( File::Basename::dirname( Cwd::abs_path __FILE__ ), 'lib' );
 
+use Local::Thing;
 use Local::Test::TempDir qw(tempdir);
 
 use Git::Background;
-use Git::Background::Exception;
 
 use constant CLASS => 'Git::Background';
 
@@ -89,7 +89,7 @@ note('new($dir_obj)');
     my $dir = tempdir();
 
     # We need an object that can stringify
-    my $dir_obj = Git::Background::Exception->new( { stderr => $dir } );
+    my $dir_obj = Local::Thing->new($dir);
 
     my $obj = CLASS()->new($dir_obj);
     isa_ok( $obj, CLASS(), 'new returned object' );

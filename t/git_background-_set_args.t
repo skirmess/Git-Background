@@ -9,21 +9,14 @@ use Test::More 0.88;
 
 use Scalar::Util qw(blessed);
 
+use Cwd            ();
+use File::Basename ();
+use File::Spec     ();
+use lib File::Spec->catdir( File::Basename::dirname( Cwd::abs_path __FILE__ ), 'lib' );
+
+use Local::Thing;
+
 use Git::Background;
-
-package Local::Thing;
-
-use overload (
-    q("")    => '_stringify',
-    bool     => sub () { return 1 },
-    fallback => 1,
-);
-
-sub _stringify {
-    return 'hello world';
-}
-
-package main;
 
 {
     my $target = {};
@@ -52,7 +45,7 @@ package main;
 }
 
 {
-    my $dir    = bless {}, 'Local::Thing';
+    my $dir    = Local::Thing->new('hello world');
     my $target = {};
     my $args   = { dir => $dir };
     ok( !defined Git::Background::_set_args( $target, $args ), 'returns undef on success' );

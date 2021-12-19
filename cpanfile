@@ -97,7 +97,6 @@ on develop => sub {
     requires 'Perl::Critic::Policy::Moose::ProhibitNewMethod', '1.05';
     requires 'Perl::Critic::Policy::Moose::RequireCleanNamespace', '1.05';
     requires 'Perl::Critic::Policy::Moose::RequireMakeImmutable', '1.05';
-    requires 'Perl::Critic::Policy::Perlsecret', 'v0.0.11';
     requires 'Perl::Critic::Policy::Subroutines::ProhibitExportingUndeclaredSubs', '0.05';
     requires 'Perl::Critic::Policy::Subroutines::ProhibitQualifiedSubDeclarations', '0.05';
     requires 'Perl::Critic::Policy::Tics::ProhibitManyArrows', '0.009';

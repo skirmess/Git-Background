@@ -49,8 +49,8 @@ USAGE
 
     Please not that get and stdout always throws an exception if Git
     returns 128 (fatal Git error) or 129 (Git usage error) regardless of
-    the truthiness of fatal. get and stdout also throws an exception if
-    another error happens, e.g. if the output from Git cannot be read.
+    fatal. get and stdout also throws an exception if another error
+    happens, e.g. if the output from Git cannot be read.
 
   git
 
@@ -103,13 +103,12 @@ USAGE
  get
 
     Waits for the running Git process to finish. Throws an exception if run
-    was never called. In scalar context, get returns the output the Git
-    process produced on stdout, and inlist context it returns the stdout,
-    stderr and exit code of the Git process.
+    was never called. Returns the stdout, stderr and exit code of the Git
+    process.
 
         my $git = Git::Background->new($dir);
         # dies, because no run was called
-        my $stdout = $git->get;
+        my ($stdout) = $git->get;
 
         my $git = Git::Background->new($dir);
         $git->run('status', '-s');
@@ -136,10 +135,17 @@ USAGE
 
  stdout
 
-    Calls get, then returns either a list or a scalar of all the lines
-    written by the Git command to stdout.
+    Calls get, then returns all the lines written by the Git command to
+    stdout.
 
     Because this command calls get, the same exceptions can be thrown.
+
+    Note: get returns all the output lines in a single scalar, stdout
+    returns splits them up and returns a list.
+
+        my $git = Git::Background->new($dir);
+        my ($stdout) = $git->run( qw(status -s) )->get;
+        my @stdout = $git->run( qw(status -s) )->stdout;
 
  version( [ARGS] )
 
@@ -169,7 +175,7 @@ EXAMPLES
     cannot be run in a workspace and the target directory must not exist.
 
     There are two ways to use a Git::Background object without the
-    workspace directoy:
+    workspace directory:
 
         my $git = Git::Background->new;
         $git->run('clone', $url, $dir);

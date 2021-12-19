@@ -1,0 +1,4 @@
+[ControlStructures::ProhibitPostfixControls]
+flowcontrol = Carp::croak croak die
+
+[-Variables::ProhibitPackageVars]

@@ -38,9 +38,8 @@ sub stderr {
     if ( !defined $stderr ) {
         $stderr = q{};
     }
-    return $stderr if !wantarray;
 
-    my @stderr = split /\n/, $stderr;
+    my @stderr = split /\n/xsm, $stderr;
     return @stderr;
 }
 
@@ -51,20 +50,19 @@ sub stdout {
     if ( !defined $stdout ) {
         $stdout = q{};
     }
-    return $stdout if !wantarray;
 
-    my @stdout = split /\n/, $stdout;
+    my @stdout = split /\n/xsm, $stdout;
     return @stdout;
 }
 
 sub _stringify {
     my ($self) = @_;
 
-    my $stderr = $self->stderr;
+    my $stderr = join "\n", $self->stderr;
     return $stderr if length $stderr;
 
     my $exit_code = $self->exit_code;
-    return "git exited with a fatal exit code but had no output to stderr" if !defined $exit_code;
+    return 'git exited with a fatal exit code but had no output to stderr' if !defined $exit_code;
     return "git exited with fatal exit code $exit_code but had no output to stderr";
 }
 
@@ -123,25 +121,19 @@ A string containing all the output printed to STDOUT by Git.
 
 =head2 exit_code
 
-Returnes the exit code returned by Git. This is the reason the exception was
+Returns the exit code returned by Git. This is the reason the exception was
 thrown.
 
 =head2 stderr
 
-Returns the output printed to standard error by Git. In list context this
-returns a list with all the lines, otherwise a single string with the whole
-output is returned.
+Returns a list of all the output lines printed to standard error by Git.
 
-    my $stderr = $e->stderr;
     my @stderr = $e->stderr;
 
 =head2 stdout
 
-Returns the output printed to standard output by Git. In list context this
-returns a list with all the lines, otherwise a single string with the whole
-output is returned.
+Returns a list of all the output lines printed to standard output by Git.
 
-    my $stdout = $e->stdout;
     my @stdout = $e->stdout;
 
 =head1 EXAMPLES
@@ -170,7 +162,7 @@ output is returned.
         warn "Git exited with exit code $exit_code\n$stderr\n";
     }
 
-=head2 Exaple 2 Catch exception with eval
+=head2 Example 2 Catch exception with eval
 
     use 5.006;
     use strict;

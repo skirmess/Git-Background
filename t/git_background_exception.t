@@ -17,7 +17,7 @@ note('with output');
             exit_code => 7,
             stderr    => "an error\nhappend",
             stdout    => "text on\nstdout\n",
-        }
+        },
     );
     isa_ok( $obj, CLASS(), 'new returned object' );
 
@@ -25,12 +25,10 @@ note('with output');
     is( $obj->exit_code,    7, 'can be read by ->exit_code' );
 
     is( $obj->{_stderr}, "an error\nhappend", 'contains correct stderr' );
-    is_deeply( [ $obj->stderr ], [ 'an error', 'happend' ], 'can be read by ->stderr as list' );
-    is( $obj->stderr, "an error\nhappend", '... or scalar' );
+    is_deeply( [ $obj->stderr ], [ 'an error', 'happend' ], 'can be read by ->stderr' );
 
     is_deeply( $obj->{_stdout},  "text on\nstdout\n",     'contains correct stdout' );
-    is_deeply( [ $obj->stdout ], [ 'text on', 'stdout' ], 'can be read by ->stdout as list' );
-    is( $obj->stdout, "text on\nstdout\n", '... or scalar' );
+    is_deeply( [ $obj->stdout ], [ 'text on', 'stdout' ], 'can be read by ->stdout' );
 
     is( "$obj",           "an error\nhappend", 'object stringifies to stderr' );
     is( ( $obj ? 1 : 0 ), 1,                   'booleanizes to true' );
@@ -43,7 +41,7 @@ note('without output');
             exit_code => 11,
             stderr    => q{},
             stdout    => q{},
-        }
+        },
     );
     isa_ok( $obj, CLASS(), 'new returned object' );
 
@@ -51,12 +49,10 @@ note('without output');
     is( $obj->exit_code,    11, 'can be read by ->exit_code' );
 
     is( $obj->{_stderr}, q{}, 'contains no stderr' );
-    is_deeply( [ $obj->stderr ], [], 'can be read by ->stderr as list' );
-    is( $obj->stderr, q{}, '... and scalar' );
+    is_deeply( [ $obj->stderr ], [], 'can be read by ->stderr' );
 
     is( $obj->{_stdout}, q{}, 'contains no stdout' );
-    is_deeply( [ $obj->stdout ], [], 'can be read by ->stdout as list' );
-    is( $obj->stdout, q{}, '... and scalar' );
+    is_deeply( [ $obj->stdout ], [], 'can be read by ->stdout' );
 
     is( "$obj",           'git exited with fatal exit code 11 but had no output to stderr', 'object stringifies to correct message' );
     is( ( $obj ? 1 : 0 ), 1,                                                                'booleanizes to true' );
@@ -69,7 +65,7 @@ note('boolean');
             exit_code => 13,
             stderr    => '0',
             stdout    => q{},
-        }
+        },
     );
     isa_ok( $obj, CLASS(), 'new returned object' );
 
@@ -87,10 +83,8 @@ note('incorrect usage');
     ok( !defined $obj->{_stdout},    q{_stdout doesn't exist} );
 
     ok( !defined $obj->exit_code, q{exit_code returns undef} );
-    is( $obj->stderr, q{}, q{stderr returns an empty string} );
-    is_deeply( [ $obj->stderr ], [], q{... or list} );
-    is( $obj->stdout, q{}, q{stdout returns an empty string} );
-    is_deeply( [ $obj->stdout ], [], q{... or list} );
+    is_deeply( [ $obj->stderr ], [], q{stderr returns an empty list} );
+    is_deeply( [ $obj->stdout ], [], q{stdout returns an empty list} );
 
     is( "$obj",           'git exited with a fatal exit code but had no output to stderr', 'object stringifies to correct message' );
     is( ( $obj ? 1 : 0 ), 1,                                                               'booleanizes to true' );

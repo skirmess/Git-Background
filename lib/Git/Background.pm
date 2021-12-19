@@ -77,7 +77,7 @@ sub get {
 
     # git died by a signal
     if ( $run->{_proc}->exit_signal ) {
-        warn $stderr;
+        warn $stderr;    ## no critic (ErrorHandling::RequireCarping)
         Carp::croak 'Git was terminated by a signal';
     }
 
@@ -88,17 +88,17 @@ sub get {
     # get exit code and signal from git process
     my $exit_code = $run->{_proc}->exit_code;
 
+    ## no critic (ErrorHandling::RequireCarping)
     die Git::Background::Exception->new(
         {
             stdout    => $stdout,
             stderr    => $stderr,
             exit_code => $exit_code,
-        }
+        },
       )
-      if
 
       # die for every non-zero return code if fatal
-      ( $exit_code && $run->{_fatal} )
+      if ( $exit_code && $run->{_fatal} )
 
       # otherwise die only for fatal error
       || $exit_code == 128
@@ -106,10 +106,8 @@ sub get {
       # or usage error
       || $exit_code == 129;
 
-    my @return = ( $stdout, $stderr, $exit_code );
-
     # $run goes out of scope and the file handles and the proc object are freed
-    return wantarray ? @return : $return[0];
+    return ( $stdout, $stderr, $exit_code );
 }
 
 sub run {
@@ -155,10 +153,8 @@ sub run {
 sub stdout {
     my ($self) = @_;
 
-    my $stdout = scalar $self->get;
-    return $stdout if !wantarray;
-
-    my @stdout = split /\n/, $stdout;
+    my ($stdout) = $self->get;
+    my @stdout   = split /\n/xsm, $stdout;
     return @stdout;
 }
 
@@ -175,7 +171,7 @@ sub version {
     }
 
     my $version = eval {
-        for my $line ( split /\n/, $self->run(@cmd)->get ) {
+        for my $line ( $self->run(@cmd)->stdout ) {
             if ( $line =~ s{ \A git \s version \s }{}xsm ) {
                 return $line;
             }
@@ -224,7 +220,7 @@ sub _slurp {
     my ($fh) = @_;
 
     $fh->seek( 0, SEEK_SET ) or Carp::croak "Cannot seek $fh: $!";
-    my $text = do { local $/; scalar readline $fh };
+    my $text = do { local $/; scalar readline $fh };    ## no critic (Variables::RequireInitializationForLocalVars)
     if ( $fh->error ) {
         Carp::croak "Cannot read $fh: $!";
     }
@@ -293,8 +289,8 @@ Enabled by default. The C<fatal> option controls if C<get> and C<stdout>
 throw an exception when Git returns a non-zero return code.
 
 Please not that C<get> and C<stdout> always throws an exception if Git
-returns 128 (fatal Git error) or 129 (Git usage error) regardless of the
-truthiness of C<fatal>. C<get> and C<stdout> also throws an exception if
+returns 128 (fatal Git error) or 129 (Git usage error) regardless of
+C<fatal>. C<get> and C<stdout> also throws an exception if
 another error happens, e.g. if the output from Git cannot be read.
 
 =head3 git
@@ -316,7 +312,7 @@ or an array ref.
 =head2 run( @CMD, [ARGS] )
 
 This runs the specified Git command in the background by passing it on to
-L<Git::Background>. The last argument can be an argument hash that takes the
+C<Git::Background>. The last argument can be an argument hash that takes the
 same arguments as C<new>.
 
     my $git = Git::Background->new($dir);
@@ -348,13 +344,12 @@ Git process if the object is destroyed.
 =head2 get
 
 Waits for the running Git process to finish. Throws an exception if C<run>
-was never called. In scalar context, C<get> returns the output the Git
-process produced on stdout, and inlist context it returns the stdout, stderr
-and exit code of the Git process.
+was never called. Returns the stdout, stderr and exit code of the Git
+process.
 
     my $git = Git::Background->new($dir);
     # dies, because no run was called
-    my $stdout = $git->get;
+    my ($stdout) = $git->get;
 
     my $git = Git::Background->new($dir);
     $git->run('status', '-s');
@@ -381,10 +376,17 @@ something true. Throws an exception if nothing was C<run> yet.
 
 =head2 stdout
 
-Calls C<get>, then returns either a list or a scalar of all the lines written
-by the Git command to stdout.
+Calls C<get>, then returns all the lines written by the Git command to
+stdout.
 
 Because this command calls C<get>, the same exceptions can be thrown.
+
+Note: C<get> returns all the output lines in a single scalar, C<stdout>
+returns splits them up and returns a list.
+
+    my $git = Git::Background->new($dir);
+    my ($stdout) = $git->run( qw(status -s) )->get;
+    my @stdout = $git->run( qw(status -s) )->stdout;
 
 =head2 version( [ARGS] )
 
@@ -414,7 +416,7 @@ Cloning a repository is a bit special as it's the only Git command that
 cannot be run in a workspace and the target directory must not exist.
 
 There are two ways to use a C<Git::Background> object without the workspace
-directoy:
+directory:
 
     my $git = Git::Background->new;
     $git->run('clone', $url, $dir);
