@@ -17,7 +17,7 @@ jobs:
           use Actions::Core;
           use version 0.77;
 
-          my $min_perl = '5.8.1';
+          my $min_perl = '5.10.0';
 
           sub perl {
               my @perl =
@@ -49,7 +49,7 @@ jobs:
           use Actions::Core;
           use version 0.77;
 
-          my $min_perl = '5.8.1';
+          my $min_perl = '5.10.0';
 
           sub perl {
               my @perl =
