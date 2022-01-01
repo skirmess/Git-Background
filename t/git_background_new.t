@@ -18,12 +18,10 @@ use Local::Test::TempDir qw(tempdir);
 
 use Git::Background;
 
-use constant CLASS => 'Git::Background';
-
 note('new()');
 {
-    my $obj = CLASS()->new;
-    isa_ok( $obj, CLASS(), 'new returned object' );
+    my $obj = Git::Background->new;
+    isa_ok( $obj, 'Git::Background', 'new returned object' );
 
     ok( $obj->{_fatal}, 'fatal is true' );
     is_deeply( $obj->{_git}, ['git'], 'git is configured to git' );
@@ -32,8 +30,8 @@ note('new()');
 
 note(q{new( { fatal => 0, git => 'my-git' } )});
 {
-    my $obj = CLASS()->new( { fatal => 0, git => 'my-git' } );
-    isa_ok( $obj, CLASS(), 'new returned object' );
+    my $obj = Git::Background->new( { fatal => 0, git => 'my-git' } );
+    isa_ok( $obj, 'Git::Background', 'new returned object' );
 
     ok( !$obj->{_fatal}, 'fatal is false' );
     is_deeply( $obj->{_git}, ['my-git'], 'git is configured to my-git' );
@@ -42,8 +40,8 @@ note(q{new( { fatal => 0, git => 'my-git' } )});
 
 note(q{new( { git => [qw(nice -19 git)] } )});
 {
-    my $obj = CLASS()->new( { git => [qw(nice -19 git)] } );
-    isa_ok( $obj, CLASS(), 'new returned object' );
+    my $obj = Git::Background->new( { git => [qw(nice -19 git)] } );
+    isa_ok( $obj, 'Git::Background', 'new returned object' );
 
     ok( $obj->{_fatal}, 'fatal is true' );
     is_deeply( $obj->{_git}, [qw(nice -19 git)], 'git is configured to nice -19 git' );
@@ -53,8 +51,8 @@ note(q{new( { git => [qw(nice -19 git)] } )});
 note('new($dir)');
 {
     my $dir = tempdir();
-    my $obj = CLASS()->new($dir);
-    isa_ok( $obj, CLASS(), 'new returned object' );
+    my $obj = Git::Background->new($dir);
+    isa_ok( $obj, 'Git::Background', 'new returned object' );
 
     ok( $obj->{_fatal}, 'fatal is true' );
     is_deeply( $obj->{_git}, ['git'], 'git is configured to git' );
@@ -64,8 +62,8 @@ note('new($dir)');
 note(q{new( $dir, { fatal => 0, git => 'my-git' } )});
 {
     my $dir = tempdir();
-    my $obj = CLASS()->new( $dir, { fatal => 0, git => 'my-git' } );
-    isa_ok( $obj, CLASS(), 'new returned object' );
+    my $obj = Git::Background->new( $dir, { fatal => 0, git => 'my-git' } );
+    isa_ok( $obj, 'Git::Background', 'new returned object' );
 
     ok( !$obj->{_fatal}, 'fatal is false' );
     is_deeply( $obj->{_git}, ['my-git'], 'git is configured to my-git' );
@@ -79,8 +77,8 @@ note('new($dir_obj)');
     # We need an object that can stringify
     my $dir_obj = Local::Thing->new($dir);
 
-    my $obj = CLASS()->new($dir_obj);
-    isa_ok( $obj, CLASS(), 'new returned object' );
+    my $obj = Git::Background->new($dir_obj);
+    isa_ok( $obj, 'Git::Background', 'new returned object' );
 
     ok( $obj->{_fatal}, 'fatal is true' );
     is_deeply( $obj->{_git}, ['git'], 'git is configured to git' );

@@ -1,6 +1,6 @@
 # NAME
 
-Git::Background - Perl interface to run Git commands (in the background)
+Git::Background - use Git commands with [Future](https://metacpan.org/pod/Future)
 
 # VERSION
 
@@ -8,9 +8,14 @@ Version 0.001
 
 # SYNOPSIS
 
+    use Git::Background 0.002;
+
     my $git = Git::Background->new($dir);
-    $git->run('status', '-s');
-    my @status = $git->stdout;
+    my $future = $git->run('status', '-s');
+    my @status = $future->stdout;
+
+    my $future = Git::Background->run('status', '-s', { dir => $dir });
+    my @status = $future->stdout;
 
 # USAGE
 
@@ -43,13 +48,14 @@ whatever the current working directory is when you call `run`.
 
 ### fatal
 
-Enabled by default. The `fatal` option controls if `get` and `stdout`
-throw an exception when Git returns a non-zero return code.
+Enabled by default. The `fatal` option controls if
+["await" in Git::Background::Future](https://metacpan.org/pod/Git%3A%3ABackground%3A%3AFuture#await) returns a failed `Future` when Git returns a
+non-zero return code.
 
-Please not that `get` and `stdout` always throws an exception if Git
-returns 128 (fatal Git error) or 129 (Git usage error) regardless of
-`fatal`. `get` and `stdout` also throws an exception if
-another error happens, e.g. if the output from Git cannot be read.
+Please not that ["await" in Git::Background::Future](https://metacpan.org/pod/Git%3A%3ABackground%3A%3AFuture#await) always returns a failed
+`Future` if Git returns 128 (fatal Git error) or 129 (Git usage error)
+regardless of `fatal`. And a failed `Future` is returned if another error
+happens, e.g. if the output from Git cannot be read.
 
 ### git
 
@@ -73,77 +79,21 @@ This runs the specified Git command in the background by passing it on to
 same arguments as `new`.
 
     my $git = Git::Background->new($dir);
-    $git->run('status', '-s', { fatal => 0 } );
+    my $future = $git->run('status', '-s', { fatal => 0 } );
 
-    my ($stdout, $stderr, $exit_code) = $git->get;
-    if ( $exit_code ) {
+    if ( $future->await->is_failed ) {
         say q{Unable to run 'git status -s'};
     }
     else {
-        my @status = split /\n/, $stdout;
-        ...;
+        my @status = $future->stdout;
     }
 
-The call returns immediately and the Git command runs in its own process.
-All output produced by Git is redirected to a [File::Temp](https://metacpan.org/pod/File%3A%3ATemp) temporary file.
-
-If there's already a Git command running for this object you have to run
-`get` or `stdout` first or `run` will croak.
-
-`run` returns itself to allow chaining.
-
-    # Waits on the clone and dies if an error happens
-    Git::Background->new->run('clone', $url, $dir)->get;
+The call returns a [Git::Background::Future](https://metacpan.org/pod/Git%3A%3ABackground%3A%3AFuture) and the Git command runs in its
+own process. All output produced by Git is redirected to a [File::Temp](https://metacpan.org/pod/File%3A%3ATemp)
+temporary file.
 
 `Proc::Background` is run with `autoterminate` set, which will kill the
-Git process if the object is destroyed.
-
-## get
-
-Waits for the running Git process to finish. Throws an exception if `run`
-was never called. Returns the stdout, stderr and exit code of the Git
-process.
-
-    my $git = Git::Background->new($dir);
-    # dies, because no run was called
-    my ($stdout_ref) = $git->get;
-
-    my $git = Git::Background->new($dir);
-    $git->run('status', '-s');
-    # waits for 'git status -s' to finish
-    my ($stdout_ref, $stderr_ref, $rc) = $git->get;
-
-`wait` throws an exception if I cannot read the output of Git or if the Git
-process was terminated by a signal.
-
-Throws a [Git::Background::Exception](https://metacpan.org/pod/Git%3A%3ABackground%3A%3AException) exception if Git terminated with an
-exit code of 128 or 129 and, as long as fatal is true, for any other
-non-zero return code. Fatal defaults to true and can be changed by the call
-to `new` and `run`.
-
-    my $git = Git::Background->new( { fatal => 0 } );
-
-    # dies, because Git will exit with exit code 129
-    $git->run('--unknown-option')->get;
-
-## is\_ready
-
-Returns something false if the Git command is still running, otherwise
-something true. Throws an exception if nothing was `run` yet.
-
-## stdout
-
-Calls `get`, then returns all the lines written by the Git command to
-stdout.
-
-Because this command calls `get`, the same exceptions can be thrown.
-
-Note: `get` returns all the output lines as array reference, `stdout`
-returns a list.
-
-    my $git = Git::Background->new($dir);
-    my ($stdout_ref) = $git->run( qw(status -s) )->get;
-    my @stdout = $git->run( qw(status -s) )->stdout;
+Git process if the future is destroyed.
 
 ## version( \[ARGS\] )
 
@@ -160,11 +110,6 @@ and can be used to check if a Git is available.
         say "You have Git version $version";
     }
 
-`version` can be run on the class or an object.
-
-    my $git = Git::Background->new( { git => '/opt/git/bin/git' } );
-    say 'You have Git version ', $git->version;
-
 # EXAMPLES
 
 ## Example 1 Clone a repository
@@ -175,28 +120,27 @@ cannot be run in a workspace and the target directory must not exist.
 There are two ways to use a `Git::Background` object without the workspace
 directory:
 
-    my $git = Git::Background->new;
-    $git->run('clone', $url, $dir);
-    $git->get;
+    my $future = Git::Background->run('clone', $url, $dir);
+    $future->get;
 
     # later, use a new object for working with the cloned repository
-    $git = Git::Background->new($dir);
-    $git->run('status', '-s');
-    my @stdout = $git->stdout;
+    my $git = Git::Background->new($dir);
+    my $future = $git->run('status', '-s');
+    my @stdout = $future->stdout;
 
 Alternatively you can overwrite the directory for the call to clone:
 
     my $git = Git::Background->new($dir);
-    $git->run('clone', $url, $dir, { dir => undef});
-    $git->get;
+    my $future = $git->run('clone', $url, $dir, { dir => undef });
+    $future->get;
 
     # then use the same object for working with the cloned repository
-    $git->run('status', '-s');
-    my @dstdout = $git->stdout;
+    my $future = $git->run('status', '-s');
+    my @dstdout = $future->stdout;
 
 # SEE ALSO
 
-[Git::Repository](https://metacpan.org/pod/Git%3A%3ARepository), [Git::Wrapper](https://metacpan.org/pod/Git%3A%3AWrapper)
+[Git::Repository](https://metacpan.org/pod/Git%3A%3ARepository), [Git::Wrapper](https://metacpan.org/pod/Git%3A%3AWrapper), [Future](https://metacpan.org/pod/Future)
 
 # SUPPORT
 
@@ -221,7 +165,7 @@ Sven Kirmess <sven.kirmess@kzone.ch>
 
 # COPYRIGHT AND LICENSE
 
-This software is Copyright (c) 2021 by Sven Kirmess.
+This software is Copyright (c) 2021-2022 by Sven Kirmess.
 
 This is free software, licensed under:
 

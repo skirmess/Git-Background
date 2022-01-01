@@ -1,8 +1,9 @@
 requires 'Carp';
 requires 'File::Temp';
+requires 'Future', '0.05';
 requires 'Proc::Background', '1.30';
 requires 'Scalar::Util';
-requires 'overload';
+requires 'parent';
 requires 'perl', '5.006';
 requires 'strict';
 requires 'warnings';
@@ -20,8 +21,8 @@ on test => sub {
     requires 'File::Spec';
     requires 'File::Spec::Functions';
     requires 'Test::More', '0.88';
-    requires 'constant';
     requires 'lib';
+    requires 'overload';
 };
 
 on develop => sub {
@@ -44,31 +45,31 @@ on develop => sub {
     requires 'Perl::Critic::Policy::CodeLayout::ProhibitFatCommaNewline', '99';
     requires 'Perl::Critic::Policy::CodeLayout::RequireFinalSemicolon', '99';
     requires 'Perl::Critic::Policy::CodeLayout::RequireTrailingCommaAtNewline', '99';
-    requires 'Perl::Critic::Policy::Community::AmpersandSubCalls', 'v1.0.1';
-    requires 'Perl::Critic::Policy::Community::ArrayAssignAref', 'v1.0.1';
-    requires 'Perl::Critic::Policy::Community::BarewordFilehandles', 'v1.0.1';
-    requires 'Perl::Critic::Policy::Community::ConditionalDeclarations', 'v1.0.1';
-    requires 'Perl::Critic::Policy::Community::ConditionalImplicitReturn', 'v1.0.1';
-    requires 'Perl::Critic::Policy::Community::DeprecatedFeatures', 'v1.0.1';
-    requires 'Perl::Critic::Policy::Community::DiscouragedModules', 'v1.0.1';
-    requires 'Perl::Critic::Policy::Community::DollarAB', 'v1.0.1';
-    requires 'Perl::Critic::Policy::Community::Each', 'v1.0.1';
-    requires 'Perl::Critic::Policy::Community::IndirectObjectNotation', 'v1.0.1';
-    requires 'Perl::Critic::Policy::Community::LexicalForeachIterator', 'v1.0.1';
-    requires 'Perl::Critic::Policy::Community::LoopOnHash', 'v1.0.1';
-    requires 'Perl::Critic::Policy::Community::ModPerl', 'v1.0.1';
-    requires 'Perl::Critic::Policy::Community::MultidimensionalArrayEmulation', 'v1.0.1';
-    requires 'Perl::Critic::Policy::Community::OpenArgs', 'v1.0.1';
-    requires 'Perl::Critic::Policy::Community::OverloadOptions', 'v1.0.1';
-    requires 'Perl::Critic::Policy::Community::POSIXImports', 'v1.0.1';
-    requires 'Perl::Critic::Policy::Community::PackageMatchesFilename', 'v1.0.1';
-    requires 'Perl::Critic::Policy::Community::PreferredAlternatives', 'v1.0.1';
-    requires 'Perl::Critic::Policy::Community::Prototypes', 'v1.0.1';
-    requires 'Perl::Critic::Policy::Community::StrictWarnings', 'v1.0.1';
-    requires 'Perl::Critic::Policy::Community::Threads', 'v1.0.1';
-    requires 'Perl::Critic::Policy::Community::Wantarray', 'v1.0.1';
-    requires 'Perl::Critic::Policy::Community::WarningsSwitch', 'v1.0.1';
-    requires 'Perl::Critic::Policy::Community::WhileDiamondDefaultAssignment', 'v1.0.1';
+    requires 'Perl::Critic::Policy::Community::AmpersandSubCalls', 'v1.0.2';
+    requires 'Perl::Critic::Policy::Community::ArrayAssignAref', 'v1.0.2';
+    requires 'Perl::Critic::Policy::Community::BarewordFilehandles', 'v1.0.2';
+    requires 'Perl::Critic::Policy::Community::ConditionalDeclarations', 'v1.0.2';
+    requires 'Perl::Critic::Policy::Community::ConditionalImplicitReturn', 'v1.0.2';
+    requires 'Perl::Critic::Policy::Community::DeprecatedFeatures', 'v1.0.2';
+    requires 'Perl::Critic::Policy::Community::DiscouragedModules', 'v1.0.2';
+    requires 'Perl::Critic::Policy::Community::DollarAB', 'v1.0.2';
+    requires 'Perl::Critic::Policy::Community::Each', 'v1.0.2';
+    requires 'Perl::Critic::Policy::Community::IndirectObjectNotation', 'v1.0.2';
+    requires 'Perl::Critic::Policy::Community::LexicalForeachIterator', 'v1.0.2';
+    requires 'Perl::Critic::Policy::Community::LoopOnHash', 'v1.0.2';
+    requires 'Perl::Critic::Policy::Community::ModPerl', 'v1.0.2';
+    requires 'Perl::Critic::Policy::Community::MultidimensionalArrayEmulation', 'v1.0.2';
+    requires 'Perl::Critic::Policy::Community::OpenArgs', 'v1.0.2';
+    requires 'Perl::Critic::Policy::Community::OverloadOptions', 'v1.0.2';
+    requires 'Perl::Critic::Policy::Community::POSIXImports', 'v1.0.2';
+    requires 'Perl::Critic::Policy::Community::PackageMatchesFilename', 'v1.0.2';
+    requires 'Perl::Critic::Policy::Community::PreferredAlternatives', 'v1.0.2';
+    requires 'Perl::Critic::Policy::Community::Prototypes', 'v1.0.2';
+    requires 'Perl::Critic::Policy::Community::StrictWarnings', 'v1.0.2';
+    requires 'Perl::Critic::Policy::Community::Threads', 'v1.0.2';
+    requires 'Perl::Critic::Policy::Community::Wantarray', 'v1.0.2';
+    requires 'Perl::Critic::Policy::Community::WarningsSwitch', 'v1.0.2';
+    requires 'Perl::Critic::Policy::Community::WhileDiamondDefaultAssignment', 'v1.0.2';
     requires 'Perl::Critic::Policy::Compatibility::ConstantLeadingUnderscore', '99';
     requires 'Perl::Critic::Policy::Compatibility::ConstantPragmaHash', '99';
     requires 'Perl::Critic::Policy::Compatibility::ProhibitUnixDevNull', '99';
@@ -147,8 +148,8 @@ on develop => sub {
     requires 'Test::XTFiles';
     requires 'XT::Files';
     requires 'XT::Util';
-    requires 'constant';
     requires 'lib';
+    requires 'overload';
 };
 feature 'dzil', 'Dist::Zilla' => sub {
 on develop => sub {
@@ -234,6 +235,7 @@ on develop => sub {
         requires 'Safe::Isa';
         requires 'Term::ANSIColor';
         requires 'YAML::Tiny';
+        requires 'constant';
         requires 'namespace::autoclean', '0.09';
         requires 'perl', '5.010';
         requires 'version', '0.77';

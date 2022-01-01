@@ -2,6 +2,8 @@ Revision history for Git-Background
 
 {{$NEXT}}
 
+  - API change to use Future
+
 0.001  2021-12-20 20:01:35 UTC
 
   - Initial release

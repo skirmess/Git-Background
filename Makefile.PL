@@ -5,7 +5,7 @@ use warnings;
 use ExtUtils::MakeMaker;
 
 my %WriteMakefileArgs = (
-    ABSTRACT           => 'Perl interface to run Git commands (in the background)',
+    ABSTRACT           => 'use Git commands with Future',
     AUTHOR             => 'Sven Kirmess <sven.kirmess@kzone.ch>',
     CONFIGURE_REQUIRES => {
         'ExtUtils::MakeMaker' => 0,
@@ -17,9 +17,10 @@ my %WriteMakefileArgs = (
     PREREQ_PM        => {
         Carp               => 0,
         'File::Temp'       => 0,
+        Future             => '0.05',
         'Proc::Background' => '1.30',
         'Scalar::Util'     => 0,
-        overload           => 0,
+        parent             => 0,
         strict             => 0,
         warnings           => 0,
     },
@@ -31,8 +32,8 @@ my %WriteMakefileArgs = (
         'File::Spec'            => 0,
         'File::Spec::Functions' => 0,
         'Test::More'            => '0.88',
-        constant                => 0,
         lib                     => 0,
+        overload                => 0,
     },
     VERSION => '0.001',
     test    => {
@@ -49,12 +50,13 @@ my %FallbackPrereqs = (
     'File::Spec'            => 0,
     'File::Spec::Functions' => 0,
     'File::Temp'            => 0,
+    Future                  => '0.05',
     'Proc::Background'      => '1.30',
     'Scalar::Util'          => 0,
     'Test::More'            => '0.88',
-    constant                => 0,
     lib                     => 0,
     overload                => 0,
+    parent                  => 0,
     strict                  => 0,
     warnings                => 0,
 );
