@@ -31,7 +31,7 @@
          "requires" : {
             "Carp" : "0",
             "File::Temp" : "0",
-            "Future" : "0.05",
+            "Future" : "0.40",
             "Proc::Background" : "1.30",
             "Scalar::Util" : "0",
             "parent" : "0",

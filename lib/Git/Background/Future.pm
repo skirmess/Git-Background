@@ -6,7 +6,7 @@ use warnings;
 
 our $VERSION = '0.002';
 
-use Future 0.05;
+use Future 0.40;
 
 use parent 'Future';
 

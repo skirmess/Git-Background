@@ -8,7 +8,7 @@ our $VERSION = '0.002';
 
 use Carp       ();
 use File::Temp ();
-use Future;
+use Future 0.40;
 use Proc::Background 1.30;
 use Scalar::Util ();
 

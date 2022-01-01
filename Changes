@@ -2,6 +2,8 @@ Revision history for Git-Background
 
 {{$NEXT}}
 
+  - Bump dependency on Future to 0.40, which introduced Future::Exception
+
 0.002  2022-01-01 19:40:33 UTC
 
   - API change to use Future
