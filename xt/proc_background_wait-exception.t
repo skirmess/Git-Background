@@ -5,7 +5,7 @@ use strict;
 use warnings;
 
 use Test::Fatal;
-use Test::MockModule;
+use Test::MockModule 0.14;
 use Test::More 0.88;
 
 use Cwd            ();
