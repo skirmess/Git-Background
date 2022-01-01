@@ -131,7 +131,7 @@ on develop => sub {
     requires 'Test::Fatal';
     requires 'Test::Kwalitee';
     requires 'Test::MinimumVersion', '0.008';
-    requires 'Test::MockModule';
+    requires 'Test::MockModule', '0.14';
     requires 'Test::Mojibake';
     requires 'Test::More', '0.88';
     requires 'Test::NoTabs';

@@ -86,7 +86,7 @@ sub test_requires {
 
 sub _add_extended_test_requirements {
     test_requires( 'Test::Fatal',      0 );
-    test_requires( 'Test::MockModule', 0 );
+    test_requires( 'Test::MockModule', '0.14' );
     return;
 }
 
