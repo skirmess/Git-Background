@@ -230,7 +230,7 @@ the stdout, stderr and exit code of the Git process.
 
 =head2 is_done
 
-L<Future/is_dome>
+L<Future/is_done>
 
 =head2 is_failed
 
