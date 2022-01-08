@@ -311,7 +311,6 @@ and can be used to check if a Git is available.
         say "You have Git version $version";
     }
 
-
 =head1 EXAMPLES
 
 =head2 Example 1 Clone a repository
@@ -342,7 +341,7 @@ Alternatively you can overwrite the directory for the call to clone:
 
 =head1 SEE ALSO
 
-L<Git::Repository>, L<Git::Wrapper>, L<Future>
+L<Git::Repository>, L<Git::Wrapper>, L<Future>, L<Git::Version::Compare>
 
 =head1 SUPPORT
 

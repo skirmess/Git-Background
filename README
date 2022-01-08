@@ -142,7 +142,7 @@ EXAMPLES
 
 SEE ALSO
 
-    Git::Repository, Git::Wrapper, Future
+    Git::Repository, Git::Wrapper, Future, Git::Version::Compare
 
 SUPPORT
 

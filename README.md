@@ -142,7 +142,7 @@ Alternatively you can overwrite the directory for the call to clone:
 
 # SEE ALSO
 
-[Git::Repository](https://metacpan.org/pod/Git%3A%3ARepository), [Git::Wrapper](https://metacpan.org/pod/Git%3A%3AWrapper), [Future](https://metacpan.org/pod/Future)
+[Git::Repository](https://metacpan.org/pod/Git%3A%3ARepository), [Git::Wrapper](https://metacpan.org/pod/Git%3A%3AWrapper), [Future](https://metacpan.org/pod/Future), [Git::Version::Compare](https://metacpan.org/pod/Git%3A%3AVersion%3A%3ACompare)
 
 # SUPPORT
 
