@@ -199,9 +199,13 @@ C<run> method of L<Git::Background>.
 
 =head2 await
 
-Blocks and waits until the Git process finishes. Returns a finished future.
+Blocks and waits until the Git process finishes.
+
+Returns the invocant future itself, so it is useful for chaining.
 
 This method is called by C<get> or C<failure>.
+
+See L<Future/await> for more information.
 
 =head2 exit_code
 
