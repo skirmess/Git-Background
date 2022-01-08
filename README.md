@@ -95,6 +95,8 @@ temporary file.
 `Proc::Background` is run with `autoterminate` set, which will kill the
 Git process if the future is destroyed.
 
+Since version 0.004 `run` `croaks` if it gets called in void context.
+
 ## version( \[ARGS\] )
 
 Returns the version of the used Git binary or undef if no Git command was
