@@ -13,7 +13,7 @@ use lib File::Spec->catdir( File::Basename::dirname( Cwd::abs_path __FILE__ ), '
 
 use Local::Test::TempDir qw(tempdir);
 
-use Git::Background;
+use Git::Background 0.003;
 
 my $bindir = File::Spec->catdir( File::Basename::dirname( File::Basename::dirname( Cwd::abs_path __FILE__ ) ), 'corpus', 'bin' );
 
