@@ -19,7 +19,7 @@ use Git::Background::Future;
 # Git::Background->new( { dir => $dir, fatal => 0 } );
 # Git::Background->new( $dir, { fatal => 0 } );
 sub new {
-    my ($class) = shift @_;
+    my $class = shift;
 
   NEW: {
         my $self;
