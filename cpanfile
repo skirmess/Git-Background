@@ -118,7 +118,7 @@ on develop => sub {
     requires 'Perl::Critic::Policy::ValuesAndExpressions::RequireNumericVersion', '99';
     requires 'Perl::Critic::Policy::ValuesAndExpressions::UnexpandedSpecialLiteral', '99';
     requires 'Perl::Critic::Policy::Variables::ProhibitLoopOnHash', '0.008';
-    requires 'Perl::Critic::Policy::Variables::ProhibitUnusedVarsStricter', '0.112';
+    requires 'Perl::Critic::Policy::Variables::ProhibitUnusedVarsStricter', '0.114';
     requires 'Perl::Critic::Policy::Variables::ProhibitUselessInitialization', '0.02';
     requires 'Pod::Wordlist';
     requires 'Test2::V0';
@@ -177,7 +177,6 @@ on develop => sub {
         requires 'Dist::Zilla::Plugin::ExecDir';
         requires 'Dist::Zilla::Plugin::FinderCode';
         requires 'Dist::Zilla::Plugin::Git::CheckFor::CorrectBranch';
-        requires 'Dist::Zilla::Plugin::Git::CheckFor::MergeConflicts';
         requires 'Dist::Zilla::Plugin::Git::Checkout';
         requires 'Dist::Zilla::Plugin::Git::Commit';
         requires 'Dist::Zilla::Plugin::Git::Contributors';

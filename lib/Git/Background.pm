@@ -104,7 +104,7 @@ sub run {
             $e = qq{$@} || 'Failed to run Git with Proc::Background';
         }
     }
-    return Future->fail( $e, 'Proc::Background' ) if !defined $proc;
+    return Git::Background::Future->fail( $e, 'Proc::Background' ) if !defined $proc;
 
     return Git::Background::Future->new(
         {
