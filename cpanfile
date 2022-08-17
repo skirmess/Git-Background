@@ -31,6 +31,7 @@ on develop => sub {
     requires 'File::Basename';
     requires 'File::Spec';
     requires 'JSON::PP';
+    requires 'List::Util', '1.33';
     requires 'Module::Info';
     requires 'Path::Tiny';
     requires 'Perl::Critic', '1.140';
@@ -224,7 +225,6 @@ on develop => sub {
         requires 'Dist::Zilla::Util::ExpandINI::Reader';
         requires 'File::Compare';
         requires 'File::pushd';
-        requires 'List::Util';
         requires 'Module::CPANfile', '1.1004';
         requires 'Module::CoreList', '2.77';
         requires 'Module::Metadata';
