@@ -2,6 +2,8 @@ Revision history for Git-Background
 
 {{$NEXT}}
 
+  - Switch license to the ISC license
+
 0.005  2022-04-03 16:05:30 UTC
 
   - Use Git::Background::Future->fail instead of Future->fail when
