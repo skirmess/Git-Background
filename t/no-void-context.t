@@ -20,12 +20,14 @@ use 5.006;
 use strict;
 use warnings;
 
-use Test::Fatal;
 use Test::More 0.88;
 
 use Cwd            ();
 use File::Basename ();
 use File::Spec     ();
+use lib File::Spec->catdir( File::Basename::dirname( Cwd::abs_path __FILE__ ), 'lib' );
+
+use Local::Test::Exception qw(exception);
 
 use Git::Background 0.003;
 

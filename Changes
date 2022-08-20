@@ -3,6 +3,7 @@ Revision history for Git-Background
 {{$NEXT}}
 
   - Switch license to the ISC license
+  - Remove test dependency on Test::Fatal
 
 0.005  2022-04-03 16:05:30 UTC
 

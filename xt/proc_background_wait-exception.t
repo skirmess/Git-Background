@@ -20,14 +20,17 @@ use 5.006;
 use strict;
 use warnings;
 
-use Test::Fatal;
 use Test::MockModule 0.14;
 use Test::More 0.88;
 
 use Cwd            ();
 use File::Basename ();
 use File::Spec     ();
-use lib File::Spec->catdir( File::Basename::dirname( Cwd::abs_path __FILE__ ), qw(lib) );
+use lib File::Spec->catdir( File::Basename::dirname( Cwd::abs_path __FILE__ ), qw(.. t lib) );
+
+use Local::Test::Exception qw(exception);
+
+use lib File::Spec->catdir( File::Basename::dirname( Cwd::abs_path __FILE__ ), 'lib' );
 
 use Local::FalseThing;
 

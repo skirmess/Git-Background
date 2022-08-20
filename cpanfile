@@ -130,7 +130,6 @@ on develop => sub {
     requires 'Test::CleanNamespaces';
     requires 'Test::DistManifest', '1.003';
     requires 'Test::EOL';
-    requires 'Test::Fatal';
     requires 'Test::Kwalitee';
     requires 'Test::MinimumVersion', '0.008';
     requires 'Test::MockModule', '0.14';
