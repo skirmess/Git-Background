@@ -32,14 +32,29 @@ jobs:
               return @perl, $min_perl;
           }
 
-          set_output( matrix => { perl => [ perl() ] } );
+          set_output(
+              matrix => {
+                  perl              => [ perl() ],
+                  PERL_FUTURE_NO_XS => [qw(0 1)],
+                  exclude           => [
+                      { perl => '5.10.0', PERL_FUTURE_NO_XS => 0 },
+                      { perl => '5.10.1', PERL_FUTURE_NO_XS => 0 },
+                      { perl => '5.12.5', PERL_FUTURE_NO_XS => 0 },
+                  ],
+              }
+          );
         shell: perl {0}
 
       - id: macos
         run: |
           use Actions::Core;
 
-          set_output( matrix => { perl => [ ( perl_versions( platform => 'darwin' ) )[0] ] } );
+          set_output(
+              matrix => {
+                  perl              => [ ( perl_versions( platform => 'darwin' ) )[0] ],
+                  PERL_FUTURE_NO_XS => [qw(0 1)],
+              }
+          );
         shell: perl {0}
 
       - id: strawberry
@@ -56,7 +71,7 @@ jobs:
               return @perl;
           }
 
-          set_output( matrix => { perl => [ perl() ] } );
+          set_output( matrix => { perl => [ perl() ], PERL_FUTURE_NO_XS => [qw(0 1)] } );
         shell: perl {0}
 
     outputs:
@@ -170,7 +185,7 @@ jobs:
         if: failure()
 
   linux:
-    name: Linux Perl ${{ matrix.perl }}
+    name: Linux Perl ${{ matrix.perl }} noXS=${{ matrix.PERL_FUTURE_NO_XS }}
     runs-on: ubuntu-latest
     needs: matrix
 
@@ -180,6 +195,7 @@ jobs:
 
     env:
       TAR_OPTIONS: --warning=no-unknown-keyword
+      PERL_FUTURE_NO_XS: ${{ matrix.PERL_FUTURE_NO_XS }}
 
     steps:
       - uses: actions/checkout@v2
@@ -257,6 +273,10 @@ jobs:
         env:
           AUTOMATED_TESTING: 1
 
+      - name: cpanm Future::XS
+        run: ${{ steps.perl.outputs.bin }} ${{ steps.installsitebin.outputs.path }}/cpanm Future::XS
+        if: matrix.PERL_FUTURE_NO_XS == 0
+
       - name: perl Makefile.PL
         run: ${{ steps.perl.outputs.bin }} Makefile.PL
         working-directory: ${{ github.event.repository.name }}
@@ -293,11 +313,17 @@ jobs:
         if: failure()
 
   macos-cellar:
-    name: macOS Cellar
+    name: macOS Cellar noXS=${{ matrix.PERL_FUTURE_NO_XS }}
     runs-on: macos-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        PERL_FUTURE_NO_XS: [ '0', '1' ]
 
     env:
       TAR_OPTIONS: --warning=no-unknown-keyword
+      PERL_FUTURE_NO_XS: ${{ matrix.PERL_FUTURE_NO_XS }}
 
     steps:
       - uses: actions/checkout@v2
@@ -354,6 +380,10 @@ jobs:
         env:
           AUTOMATED_TESTING: 1
 
+      - name: cpanm Future::XS
+        run: ${{ steps.perl.outputs.bin }} ${{ steps.installsitebin.outputs.path }}/cpanm Future::XS
+        if: matrix.PERL_FUTURE_NO_XS == 0
+
       - name: perl Makefile.PL
         run: ${{ steps.perl.outputs.bin }} Makefile.PL
         working-directory: ${{ github.event.repository.name }}
@@ -390,7 +420,7 @@ jobs:
         if: failure()
 
   macos:
-    name: macOS Perl ${{ matrix.perl }}
+    name: macOS Perl ${{ matrix.perl }} noXS=${{ matrix.PERL_FUTURE_NO_XS }}
     runs-on: macos-latest
     needs: matrix
 
@@ -400,6 +430,7 @@ jobs:
 
     env:
       TAR_OPTIONS: --warning=no-unknown-keyword
+      PERL_FUTURE_NO_XS: ${{ matrix.PERL_FUTURE_NO_XS }}
 
     steps:
       - uses: actions/checkout@v2
@@ -471,6 +502,10 @@ jobs:
         env:
           AUTOMATED_TESTING: 1
 
+      - name: cpanm Future::XS
+        run: ${{ steps.perl.outputs.bin }} ${{ steps.installsitebin.outputs.path }}/cpanm Future::XS
+        if: matrix.PERL_FUTURE_NO_XS == 0
+
       - name: perl Makefile.PL
         run: ${{ steps.perl.outputs.bin }} Makefile.PL
         working-directory: ${{ github.event.repository.name }}
@@ -507,16 +542,18 @@ jobs:
         if: failure()
 
   cygwin:
-    name: Cygwin ${{ matrix.platform }}
+    name: Cygwin ${{ matrix.platform }} noXS=${{ matrix.PERL_FUTURE_NO_XS }}
     runs-on: windows-latest
 
     strategy:
       fail-fast: false
       matrix:
         platform: [ 'x86', 'x86_64' ]
+        PERL_FUTURE_NO_XS: [ '0', '1' ]
 
     env:
       TAR_OPTIONS: --warning=no-unknown-keyword
+      PERL_FUTURE_NO_XS: ${{ matrix.PERL_FUTURE_NO_XS }}
 
     defaults:
       run:
@@ -609,6 +646,10 @@ jobs:
           AUTOMATED_TESTING: 1
           PATH: /usr/local/bin:/usr/bin
 
+      - name: cpanm Future::XS
+        run: ${{ steps.perl.outputs.bin }} ${{ steps.installsitebin.outputs.path }}/cpanm Future::XS
+        if: matrix.PERL_FUTURE_NO_XS == 0
+
       - name: perl Makefile.PL
         run: ${{ steps.perl.outputs.bin }} Makefile.PL
         working-directory: ${{ github.event.repository.name }}
@@ -652,7 +693,7 @@ jobs:
         if: failure()
 
   strawberry:
-    name: Strawberry ${{ matrix.perl }}
+    name: Strawberry ${{ matrix.perl }} noXS=${{ matrix.PERL_FUTURE_NO_XS }}
     runs-on: windows-latest
     needs: matrix
 
@@ -662,6 +703,7 @@ jobs:
 
     env:
       TAR_OPTIONS: --warning=no-unknown-keyword
+      PERL_FUTURE_NO_XS: ${{ matrix.PERL_FUTURE_NO_XS }}
 
     steps:
       - uses: actions/checkout@v2
@@ -742,6 +784,10 @@ jobs:
         working-directory: ${{ github.event.repository.name }}
         env:
           AUTOMATED_TESTING: 1
+
+      - name: cpanm Future::XS
+        run: ${{ steps.perl.outputs.bin }} ${{ steps.installsitebin.outputs.path }}/cpanm Future::XS
+        if: matrix.PERL_FUTURE_NO_XS == 0
 
       - name: perl Makefile.PL
         run: ${{ steps.perl.outputs.bin }} Makefile.PL
