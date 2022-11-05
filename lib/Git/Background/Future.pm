@@ -22,7 +22,7 @@ package Git::Background::Future;
 
 our $VERSION = '0.005';
 
-use Future 0.40;
+use Future 0.49;
 
 use parent 'Future';
 
@@ -32,17 +32,18 @@ sub new {
     my ( $class, $run ) = @_;
 
     my $self = $class->SUPER::new;
-    $self->{_run} = $run;
+    $self->set_udata( '_run', $run );
     return $self;
 }
 
 sub await {
     my ($self) = @_;
 
-    return $self if $self->{ready};
+    my $run = $self->udata('_run');
 
-    return $self->fail( q{internal error: cannot find '_run'}, 'internal' ) if !defined $self->{_run};
-    my $run = delete $self->{_run};
+    return $self if !defined $run;
+
+    $self->set_udata( '_run', undef );
 
     my $e;
     my $ok = 1;
@@ -168,7 +169,8 @@ sub stdout {
 sub _await_if_git_is_done {
     my ($self) = @_;
 
-    if ( defined $self->{_run} && !$self->{_run}{_proc}->alive ) {
+    my $run = $self->udata('_run');
+    if ( defined $run && !$run->{_proc}->alive ) {
         $self->await;
     }
 

@@ -31,8 +31,7 @@ note('new()');
 
     # This is wrong usage, but new() doesn't catch that. This test is only
     # to ensure this behavior doesn't change.
-    ok( exists $obj->{_run},   '_run exists' );
-    ok( !defined $obj->{_run}, '... but is not defined' );
+    ok( !defined $obj->udata('_run'), '... _run is not defined' );
 }
 
 note('new()');
@@ -40,7 +39,7 @@ note('new()');
     my $obj = Git::Background::Future->new('hello world');
     isa_ok( $obj, 'Git::Background::Future', 'new returned object' );
 
-    is( $obj->{_run}, 'hello world', '_run is set' );
+    is( $obj->udata('_run'), 'hello world', '_run is set' );
 }
 
 #

@@ -1,6 +1,6 @@
 requires 'Carp';
 requires 'File::Temp';
-requires 'Future', '0.40';
+requires 'Future', '0.49';
 requires 'Proc::Background', '1.30';
 requires 'Scalar::Util';
 requires 'parent';
