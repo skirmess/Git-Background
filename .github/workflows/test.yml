@@ -71,7 +71,17 @@ jobs:
               return @perl;
           }
 
-          set_output( matrix => { perl => [ perl() ], PERL_FUTURE_NO_XS => [qw(0 1)] } );
+          set_output(
+              matrix => {
+                  perl              => [ perl() ],
+                  PERL_FUTURE_NO_XS => [qw(0 1)],
+                  exclude           => [
+                      # 2022-11-05 Future::XS doesn't compile on these
+                      { perl => '5.18.4', PERL_FUTURE_NO_XS => 0 },
+                      { perl => '5.16.2', PERL_FUTURE_NO_XS => 0 },
+                  ],
+              }
+          );
         shell: perl {0}
 
     outputs:
