@@ -40,6 +40,11 @@ jobs:
                       { perl => '5.10.0', PERL_FUTURE_NO_XS => 0 },
                       { perl => '5.10.1', PERL_FUTURE_NO_XS => 0 },
                       { perl => '5.12.5', PERL_FUTURE_NO_XS => 0 },
+                      { perl => '5.14.4', PERL_FUTURE_NO_XS => 0 },
+                      { perl => '5.16.3', PERL_FUTURE_NO_XS => 0 },
+                      { perl => '5.18.4', PERL_FUTURE_NO_XS => 0 },
+                      { perl => '5.20.3', PERL_FUTURE_NO_XS => 0 },
+                      { perl => '5.22.4', PERL_FUTURE_NO_XS => 0 },
                   ],
               }
           );
@@ -76,9 +81,11 @@ jobs:
                   perl              => [ perl() ],
                   PERL_FUTURE_NO_XS => [qw(0 1)],
                   exclude           => [
-                      # 2022-11-05 Future::XS doesn't compile on these
-                      { perl => '5.18.4', PERL_FUTURE_NO_XS => 0 },
+                      { perl => '5.14.4', PERL_FUTURE_NO_XS => 0 },
                       { perl => '5.16.2', PERL_FUTURE_NO_XS => 0 },
+                      { perl => '5.18.4', PERL_FUTURE_NO_XS => 0 },
+                      { perl => '5.20.3', PERL_FUTURE_NO_XS => 0 },
+                      { perl => '5.22.3', PERL_FUTURE_NO_XS => 0 },
                   ],
               }
           );
@@ -581,6 +588,7 @@ jobs:
             gcc-g++
             git
             libcrypt-devel
+            libnsl-devel
             libssl-devel
             make
             perl

@@ -4,13 +4,13 @@ requires 'Future', '0.49';
 requires 'Proc::Background', '1.30';
 requires 'Scalar::Util';
 requires 'parent';
-requires 'perl', '5.006';
+requires 'perl', '5.010';
 requires 'strict';
 requires 'warnings';
 
 on configure => sub {
     requires 'ExtUtils::MakeMaker';
-    requires 'perl', '5.006';
+    requires 'perl', '5.010';
 };
 
 on test => sub {
@@ -34,7 +34,7 @@ on develop => sub {
     requires 'List::Util', '1.33';
     requires 'Module::Info';
     requires 'Path::Tiny';
-    requires 'Perl::Critic', '1.140';
+    requires 'Perl::Critic', '1.150';
     requires 'Perl::Critic::MergeProfile';
     requires 'Perl::Critic::Policy::Bangs::ProhibitBitwiseOperators', '1.12';
     requires 'Perl::Critic::Policy::Bangs::ProhibitDebuggingModules', '1.12';
@@ -86,8 +86,8 @@ on develop => sub {
     requires 'Perl::Critic::Policy::Documentation::RequireFilenameMarkup', '99';
     requires 'Perl::Critic::Policy::Documentation::RequireLinkedURLs', '99';
     requires 'Perl::Critic::Policy::HTTPCookies', '0.54';
-    requires 'Perl::Critic::Policy::Lax::ProhibitComplexMappings::LinesNotStatements', '0.013';
-    requires 'Perl::Critic::Policy::Lax::RequireExplicitPackage::ExceptForPragmata', '0.013';
+    requires 'Perl::Critic::Policy::Lax::ProhibitComplexMappings::LinesNotStatements', '0.014';
+    requires 'Perl::Critic::Policy::Lax::RequireExplicitPackage::ExceptForPragmata', '0.014';
     requires 'Perl::Critic::Policy::Modules::PerlMinimumVersion', '1.003';
     requires 'Perl::Critic::Policy::Modules::ProhibitModuleShebang', '99';
     requires 'Perl::Critic::Policy::Modules::ProhibitPOSIXimport', '99';
@@ -103,8 +103,8 @@ on develop => sub {
     requires 'Perl::Critic::Policy::Moose::RequireMakeImmutable', '1.05';
     requires 'Perl::Critic::Policy::Subroutines::ProhibitExportingUndeclaredSubs', '0.06';
     requires 'Perl::Critic::Policy::Subroutines::ProhibitQualifiedSubDeclarations', '0.06';
-    requires 'Perl::Critic::Policy::Tics::ProhibitManyArrows', '0.009';
-    requires 'Perl::Critic::Policy::Tics::ProhibitUseBase', '0.009';
+    requires 'Perl::Critic::Policy::Tics::ProhibitManyArrows', '0.010';
+    requires 'Perl::Critic::Policy::Tics::ProhibitUseBase', '0.010';
     requires 'Perl::Critic::Policy::TryTiny::RequireBlockTermination', '0.03';
     requires 'Perl::Critic::Policy::TryTiny::RequireUse', '0.05';
     requires 'Perl::Critic::Policy::ValuesAndExpressions::ConstantBeforeLt', '99';
@@ -238,7 +238,6 @@ on develop => sub {
         requires 'YAML::Tiny';
         requires 'constant';
         requires 'namespace::autoclean', '0.09';
-        requires 'perl', '5.010';
         requires 'version', '0.77';
 };
 };

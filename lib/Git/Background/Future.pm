@@ -1,6 +1,6 @@
 # vim: ts=4 sts=4 sw=4 et: syntax=perl
 #
-# Copyright (c) 2021-2022 Sven Kirmess
+# Copyright (c) 2021-2023 Sven Kirmess
 #
 # Permission to use, copy, modify, and distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -14,7 +14,7 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-use 5.006;
+use 5.010;
 use strict;
 use warnings;
 
@@ -208,6 +208,22 @@ This is a subclass of L<Future>. Please read the excellent documentation of
 C<Future> to see what you can do with this module, this man page only
 describes the changes to C<Future> specific to L<Git::Background>.
 
+=head2 UTF-8
+
+The module assumes that C<git>s output is UTF-8, which is the default.
+Before stdout and stderr from C<git> are read, L<Git::Background> turns on
+UTF-8 on the file handle with
+
+    binmode($fh, ':encoding(UTF-8)');
+
+The strings returnd by the C<get>, C<stderr>, and C<stdout> string can
+therefore contain wide characters. When you write this data to a file handle,
+you must ensure that the destination also uses a suitable encoding. This is
+necessary to correctly handle any wide characters in the data. You can do this
+by setting the encoding of the destination filehandle, e.g.:
+
+    binmode(STDOUT, ':encoding(UTF-8)');
+
 =head1 USAGE
 
 =head2 new( RUN )
@@ -236,7 +252,7 @@ undef if the future finished successfully, otherwise it returns a list with
 
     $message, $category, @details
 
-For the C<$category> C<git> C<@details> is a list of C<stdout_ref>,
+For the C<$category> C<git>, C<@details> is a list of C<stdout_ref>,
 C<stderr_ref>, and C<exit_code>.
 
 =head2 get

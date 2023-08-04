@@ -1,6 +1,6 @@
 # vim: ts=4 sts=4 sw=4 et: syntax=perl
 #
-# Copyright (c) 2021-2022 Sven Kirmess
+# Copyright (c) 2021-2023 Sven Kirmess
 #
 # Permission to use, copy, modify, and distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -14,7 +14,7 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-use 5.006;
+use 5.010;
 use strict;
 use warnings;
 
@@ -94,6 +94,8 @@ sub run {
 
     my $stdout = File::Temp->new;
     my $stderr = File::Temp->new;
+    binmode $stdout, ':encoding(UTF-8)';    ## no critic (InputOutput::RequireCheckedSyscalls)
+    binmode $stderr, ':encoding(UTF-8)';    ## no critic (InputOutput::RequireCheckedSyscalls)
 
     # Proc::Background
     my $proc_args = {
