@@ -20,7 +20,7 @@ use warnings;
 
 package Git::Background::Future;
 
-our $VERSION = '0.007';
+our $VERSION = '0.007_01';
 
 use Future 0.49;
 
@@ -191,7 +191,7 @@ Git::Background::Future - use L<Future> with L<Git::Background>
 
 =head1 VERSION
 
-Version 0.007
+Version 0.007_01
 
 =head1 SYNOPSIS
 

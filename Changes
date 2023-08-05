@@ -2,6 +2,8 @@ Revision history for Git-Background
 
 {{$NEXT}}
 
+0.007_01  2023-08-05 16:02:13 UTC
+
   - The git used for the tests now always outputs UTF-8, as the real
     Git does.
   - Added a new test to test the UTF-8 handling.
