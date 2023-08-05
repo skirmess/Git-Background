@@ -4,7 +4,7 @@ Git::Background - use Git commands with [Future](https://metacpan.org/pod/Future
 
 # VERSION
 
-Version 0.006
+Version 0.007
 
 # SYNOPSIS
 

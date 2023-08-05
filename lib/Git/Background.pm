@@ -20,7 +20,7 @@ use warnings;
 
 package Git::Background;
 
-our $VERSION = '0.006';
+our $VERSION = '0.007';
 
 use Carp       ();
 use File::Temp ();
@@ -220,7 +220,7 @@ Git::Background - use Git commands with L<Future>
 
 =head1 VERSION
 
-Version 0.006
+Version 0.007
 
 =head1 SYNOPSIS
 
