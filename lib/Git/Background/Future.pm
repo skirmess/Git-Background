@@ -216,7 +216,7 @@ UTF-8 on the file handle with
 
     binmode($fh, ':encoding(UTF-8)');
 
-The strings returnd by the C<get>, C<stderr>, and C<stdout> string can
+The strings returned by the C<get>, C<stderr>, and C<stdout> string can
 therefore contain wide characters. When you write this data to a file handle,
 you must ensure that the destination also uses a suitable encoding. This is
 necessary to correctly handle any wide characters in the data. You can do this

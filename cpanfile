@@ -26,12 +26,12 @@ on test => sub {
 };
 
 on develop => sub {
-    requires 'CPAN';
     requires 'Cwd';
     requires 'File::Basename';
     requires 'File::Spec';
     requires 'JSON::PP';
     requires 'List::Util', '1.33';
+    requires 'MetaCPAN::Client';
     requires 'Module::Info';
     requires 'Path::Tiny';
     requires 'Perl::Critic', '1.150';
