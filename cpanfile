@@ -20,6 +20,7 @@ on test => sub {
     requires 'File::Path', '2.07';
     requires 'File::Spec';
     requires 'File::Spec::Functions';
+    requires 'Test2::Plugin::UTF8';
     requires 'Test::More', '0.88';
     requires 'lib';
     requires 'overload';

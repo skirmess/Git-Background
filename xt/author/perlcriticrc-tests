@@ -2,4 +2,5 @@
 [-RegularExpressions::RequireExtendedFormatting]
 [-RegularExpressions::RequireLineBoundaryMatching]
 [-Subroutines::ProtectPrivateSubs]
+[-ValuesAndExpressions::ProhibitEscapedCharacters]
 [-ValuesAndExpressions::RequireInterpolationOfMetachars]
