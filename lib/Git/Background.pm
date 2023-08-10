@@ -45,7 +45,17 @@ sub new {
         my $dir;
 
         # first argument is a scalar or object
-        if ( @_ && ( ref $_[0] eq ref q{} || defined Scalar::Util::blessed $_[0] ) ) {
+        if (
+            @_
+            && (
+                # first argument is a scalar
+                !defined Scalar::Util::reftype $_[0]
+
+                # or object
+                || defined Scalar::Util::blessed $_[0]
+            )
+          )
+        {
             my $arg = shift @_;
 
             # stringify objects (e.g. Path::Tiny)
@@ -55,7 +65,7 @@ sub new {
         last NEW if @_ > 1;
 
         # first/remaining argument is a hash ref
-        if ( @_ && ref $_[0] eq ref {} ) {
+        if ( @_ && Scalar::Util::reftype $_[0] eq 'HASH' ) {
             my $args = shift @_;
             $self = $class->_process_args($args);
         }
@@ -78,13 +88,14 @@ sub new {
     Carp::croak 'usage: new( [DIR], [ARGS] )';
 }
 
+# Git::Background->run( [ { dir => $dir, fatal => 0 }], @cmd );
 sub run {
     my ( $self, @cmd ) = @_;
 
     Carp::croak 'Cannot use run() in void context. (The git process would immediately get killed.)' if !defined wantarray;    ## no critic (Community::Wantarray)
 
     my $config;
-    if ( @cmd && ref $cmd[-1] eq ref {} ) {
+    if ( @cmd && Scalar::Util::reftype $cmd[-1] eq 'HASH' ) {
         my $args = pop @cmd;
         $config = $self->_process_args($args);
     }
@@ -192,7 +203,11 @@ sub _process_args {
     # git
     if ( exists $args->{git} ) {
         my $git = $args->{git};
-        $config{_git} = [ ( defined Scalar::Util::reftype($git) && Scalar::Util::reftype($git) eq Scalar::Util::reftype( [] ) ) ? @{ $args->{git} } : $git ];
+        $config{_git} = [
+            ( defined Scalar::Util::reftype($git) && Scalar::Util::reftype($git) eq 'ARRAY' )
+            ? @{ $args->{git} }
+            : $git,
+        ];
         delete $args_keys{git};
     }
     else {
