@@ -21,7 +21,6 @@ use strict;
 use warnings;
 
 use Test::More 0.88;
-use Test2::Plugin::UTF8 qw(encoding_only);
 
 use Cwd            ();
 use File::Basename ();
@@ -32,29 +31,35 @@ use Local::Test::TempDir qw(tempdir);
 
 use Git::Background 0.007;
 
-my $bindir = File::Spec->catdir( File::Basename::dirname( File::Basename::dirname( Cwd::abs_path __FILE__ ) ), 'corpus', 'bin' );
+SKIP: {
+    for my $output (qw(failure_output todo_output output)) {
+        skip "Cannot set test handle $output as UTF-8." if !binmode Test::More->builder->$output, ':encoding(UTF-8)';
+    }
 
-my $obj = Git::Background->new( { git => [ $^X, File::Spec->catdir( $bindir, 'my-git.pl' ) ] } );
-isa_ok( $obj, 'Git::Background', 'new returned object' );
+    my $bindir = File::Spec->catdir( File::Basename::dirname( File::Basename::dirname( Cwd::abs_path __FILE__ ) ), 'corpus', 'bin' );
 
-# Unicode test
-note('usage - 0 / Unicode on stdout / no stderr');
-my $f = $obj->run(
-    '-x0',
-    "-o\x{4E16}\x{754C}\x{60A8}\x{597D}\n",
-    "-e\x{00E4} | \x{4E16}\x{754C}\x{60A8}\x{597D}\n",
-    "-o\x{4E16}\x{754C}\x{60A8}\x{597D}\n",
-    "-e\x{00F6} | \x{4E16}\x{754C}\x{60A8}\x{597D}\n",
-    "-e\x{00FC} | \x{4E16}\x{754C}\x{60A8}\x{597D}\n",
-);
+    my $obj = Git::Background->new( { git => [ $^X, File::Spec->catdir( $bindir, 'my-git.pl' ) ] } );
+    isa_ok( $obj, 'Git::Background', 'new returned object' );
 
-isa_ok( $f, 'Git::Background::Future', 'run() returns a Git::Background::Future' );
+    # Unicode test
+    note('usage - 0 / Unicode on stdout / no stderr');
+    my $f = $obj->run(
+        '-x0',
+        "-o\x{4E16}\x{754C}\x{60A8}\x{597D}\n",
+        "-e\x{00E4} | \x{4E16}\x{754C}\x{60A8}\x{597D}\n",
+        "-o\x{4E16}\x{754C}\x{60A8}\x{597D}\n",
+        "-e\x{00F6} | \x{4E16}\x{754C}\x{60A8}\x{597D}\n",
+        "-e\x{00FC} | \x{4E16}\x{754C}\x{60A8}\x{597D}\n",
+    );
 
-my ( $stdout, $stderr, $rc ) = $f->get;
+    isa_ok( $f, 'Git::Background::Future', 'run() returns a Git::Background::Future' );
 
-is_deeply( $stdout, [ "\x{4E16}\x{754C}\x{60A8}\x{597D}", "\x{4E16}\x{754C}\x{60A8}\x{597D}", ], 'get() returns correct stdout' );
-is_deeply( $stderr, [ "\x{00E4} | \x{4E16}\x{754C}\x{60A8}\x{597D}", "\x{00F6} | \x{4E16}\x{754C}\x{60A8}\x{597D}", "\x{00FC} | \x{4E16}\x{754C}\x{60A8}\x{597D}", ], '... stderr' );
-is( $rc, 0, '... and exit code' );
+    my ( $stdout, $stderr, $rc ) = $f->get;
+
+    is_deeply( $stdout, [ "\x{4E16}\x{754C}\x{60A8}\x{597D}", "\x{4E16}\x{754C}\x{60A8}\x{597D}", ], 'get() returns correct stdout' );
+    is_deeply( $stderr, [ "\x{00E4} | \x{4E16}\x{754C}\x{60A8}\x{597D}", "\x{00F6} | \x{4E16}\x{754C}\x{60A8}\x{597D}", "\x{00FC} | \x{4E16}\x{754C}\x{60A8}\x{597D}", ], '... stderr' );
+    is( $rc, 0, '... and exit code' );
+}
 
 #
 done_testing();

@@ -9,7 +9,6 @@ build_requires:
   File::Path: '2.07'
   File::Spec: '0'
   File::Spec::Functions: '0'
-  Test2::Plugin::UTF8: '0'
   Test::More: '0.88'
   lib: '0'
   overload: '0'
