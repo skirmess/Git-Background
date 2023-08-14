@@ -15,6 +15,7 @@ on configure => sub {
 
 on test => sub {
     requires 'Cwd';
+    requires 'Encode';
     requires 'Exporter';
     requires 'File::Basename';
     requires 'File::Path', '2.07';

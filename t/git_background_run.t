@@ -55,7 +55,8 @@ isa_ok( $f, 'Future',                  '... which is a Future' );
 ok( defined $f->udata('_run'),          'contains a _run structure' );
 ok( $f->udata('_run')->{_fatal},        '_run has correct _fatal' );
 ok( !defined $f->udata('_run')->{_dir}, '... _dir' );
-isa_ok( $f->udata('_run')->{_stderr}, 'File::Temp',       '... stderr' );
+isa_ok( $f->udata('_run')->{_stderr}, 'File::Temp', '... stderr' );
+is( $f->udata('_run')->{_split}, 1, '... split' );
 isa_ok( $f->udata('_run')->{_stdout}, 'File::Temp',       '... stdout' );
 isa_ok( $f->udata('_run')->{_proc},   'Proc::Background', '... and _proc' );
 

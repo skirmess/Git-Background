@@ -32,8 +32,13 @@ use Git::Background::Future;
 
 # Git::Background->new;
 # Git::Background->new($dir);
-# Git::Background->new( { dir => $dir, fatal => 0 } );
-# Git::Background->new( $dir, { fatal => 0 } );
+# Git::Background->new( { %options } );
+# Git::Background->new( $dir, { %options } );
+# options:
+#   - dir
+#   - fatal     (default 1)
+#   - mode      (default utf8)
+#   - split     (default 1)
 sub new {
     my $class = shift;
 
@@ -49,10 +54,10 @@ sub new {
             @_
             && (
                 # first argument is a scalar
-                !defined Scalar::Util::reftype $_[0]
+                !defined Scalar::Util::reftype( $_[0] )
 
                 # or object
-                || defined Scalar::Util::blessed $_[0]
+                || defined Scalar::Util::blessed( $_[0] )
             )
           )
         {
@@ -64,16 +69,16 @@ sub new {
 
         last NEW if @_ > 1;
 
-        # first/remaining argument is a hash ref
-        if ( @_ && Scalar::Util::reftype $_[0] eq 'HASH' ) {
+        if (@_) {
+            last NEW if !defined Scalar::Util::reftype( $_[0] ) || Scalar::Util::reftype( $_[0] ) ne 'HASH';
+
+            # first/remaining argument is a hash ref
             my $args = shift @_;
             $self = $class->_process_args($args);
         }
         else {
             $self = $class->_process_args;
         }
-
-        last NEW if @_;
 
         if ( defined $dir ) {
             Carp::croak 'Cannot specify dir as positional argument and in argument hash' if exists $self->{_dir};
@@ -88,14 +93,15 @@ sub new {
     Carp::croak 'usage: new( [DIR], [ARGS] )';
 }
 
-# Git::Background->run( [ { dir => $dir, fatal => 0 }], @cmd );
+# Git::Background->run( @cmd );
+# Git::Background->run( @cmd, { %options } );
 sub run {
     my ( $self, @cmd ) = @_;
 
     Carp::croak 'Cannot use run() in void context. (The git process would immediately get killed.)' if !defined wantarray;    ## no critic (Community::Wantarray)
 
     my $config;
-    if ( @cmd && Scalar::Util::reftype $cmd[-1] eq 'HASH' ) {
+    if ( @cmd && defined Scalar::Util::reftype( $cmd[-1] ) && Scalar::Util::reftype( $cmd[-1] ) eq 'HASH' ) {
         my $args = pop @cmd;
         $config = $self->_process_args($args);
     }
@@ -104,9 +110,19 @@ sub run {
     }
 
     my $stdout = File::Temp->new;
+
+    if ( $config->{_mode} eq 'raw' ) {
+        binmode $stdout, ':raw' or return Git::Background::Future->fail(q{Cannot set binmode ':raw'});
+    }
+    elsif ( $config->{_mode} eq 'utf8' ) {
+        binmode $stdout, ':encoding(UTF-8)' or return Git::Background::Future->fail(q{Cannot set binmode ':encoding(UTF-8)'});
+    }
+    else {
+        Carp::croak "Invalid mode '$config->{_mode}'";
+    }
+
     my $stderr = File::Temp->new;
-    binmode $stdout, ':encoding(UTF-8)';    ## no critic (InputOutput::RequireCheckedSyscalls)
-    binmode $stderr, ':encoding(UTF-8)';    ## no critic (InputOutput::RequireCheckedSyscalls)
+    binmode $stderr, ':encoding(UTF-8)' or return Git::Background::Future->fail(q{Cannot set binmode ':encoding(UTF-8)'});
 
     # Proc::Background
     my $proc_args = {
@@ -141,6 +157,7 @@ sub run {
             _proc   => $proc,
             _stdout => $stdout,
             _stderr => $stderr,
+            _split  => ( defined $config->{_mode} && $config->{_mode} eq 'raw' ? 0 : $config->{_split} ),
         },
     );
 }
@@ -150,10 +167,16 @@ sub version {
 
     my @cmd = qw(--version);
 
+    my %args;
     if ( defined $args ) {
-        push @cmd, $args;
+        Carp::croak 'usage: Git::Background->version([ARGS])' if !defined Scalar::Util::reftype($args) || Scalar::Util::reftype($args) ne 'HASH';
+        %args = %{$args};
     }
 
+    $args{mode}  = 'utf8';
+    $args{split} = 1;
+
+    push @cmd, \%args;
     my $version = eval {
         for my $line ( $self->run(@cmd)->stdout ) {
             if ( $line =~ s{ \A git \s version \s }{}xsm ) {
@@ -171,14 +194,16 @@ sub _process_args {
     my ( $self, $args ) = @_;
 
     if ( !defined Scalar::Util::blessed($self) ) {
-        $self = {
-            _fatal => !!1,
-            _git   => ['git'],
-        };
+        $self = {};
     }
 
     my %args_keys = map { $_ => 1 } keys %{$args};
-    my %config;
+    my %config    = (
+        _fatal => !!1,
+        _git   => ['git'],
+        _mode  => 'utf8',
+        _split => 1,
+    );
 
     # dir
     if ( exists $args->{dir} ) {
@@ -191,13 +216,15 @@ sub _process_args {
         $config{_dir} = $self->{_dir};
     }
 
-    # fatal
-    if ( exists $args->{fatal} ) {
-        $config{_fatal} = !!$args->{fatal};
-        delete $args_keys{fatal};
-    }
-    else {
-        $config{_fatal} = $self->{_fatal};
+    # fatal stdout_split stderr_split
+    for my $arg_name (qw(fatal split )) {
+        if ( exists $args->{$arg_name} ) {
+            $config{"_$arg_name"} = !!$args->{$arg_name};
+            delete $args_keys{$arg_name};
+        }
+        elsif ( exists $self->{"_$arg_name"} ) {
+            $config{"_$arg_name"} = $self->{"_$arg_name"};
+        }
     }
 
     # git
@@ -210,8 +237,17 @@ sub _process_args {
         ];
         delete $args_keys{git};
     }
-    else {
+    elsif ( exists $self->{_git} ) {
         $config{_git} = [ @{ $self->{_git} } ];
+    }
+
+    # mode
+    if ( exists $args->{mode} ) {
+        $config{_mode} = $args->{mode};
+        delete $args_keys{mode};
+    }
+    elsif ( exists $self->{_mode} ) {
+        $config{_mode} = $self->{_mode};
     }
 
     #
@@ -239,7 +275,7 @@ Version 0.007_01
 
 =head1 SYNOPSIS
 
-    use Git::Background 0.002;
+    use Git::Background 0.008;
 
     my $git = Git::Background->new($dir);
     my $future = $git->run('status', '-s');
@@ -303,6 +339,26 @@ or an array ref.
         git => [ qw( /usr/bin/sudo -u nobody git ) ],
     });
 
+=head3 mode
+
+The C<mode> option can either be C<utf8> (the default) or C<raw>. Depending
+on this option, one of the following commands is run before reading the
+stdout from C<git>.
+
+        binmode $fh, ':raw';
+        binmode $fh, ':encoding(UTF-8)';
+
+The stderr of Git is always read as UTF-8.
+
+=head3 split
+
+Enabled by default. The C<split> option controls if the stdout output from
+git is split in lines and C<chomp>ed or if the whole output is returned
+in one string.
+
+This option is ignored if C<mode> is silently C<raw>.
+
+The stderr of Git is always split.
 
 =head2 run( @CMD, [ARGS] )
 

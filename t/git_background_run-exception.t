@@ -105,6 +105,20 @@ is_deeply( $stderr, [],                                'error contains no stderr
 is( $rc, 7, 'error contains correct exit code' );
 
 #
+note('invalid mode');
+$e = exception { $f = $obj->run( '-x0', { mode => 'invalid_mode' } ) };
+like( $e, qr{ \A \QInvalid mode 'invalid_mode'\E }xsm, 'croaks if an invalid mode is given' );
+
+#
+note('version(ARRAY)');
+$e = exception { Git::Background->version( [qw(1 2 3)] ) };
+like( $e, qr{ \A \Qusage: Git::Background->version([ARGS])\E }xsm, 'error contains correct message' );
+
+note('version(STRING)');
+$e = exception { Git::Background->version('hello world') };
+like( $e, qr{ \A \Qusage: Git::Background->version([ARGS])\E }xsm, 'error contains correct message' );
+
+#
 done_testing();
 
 exit 0;

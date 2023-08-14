@@ -8,7 +8,7 @@ Version 0.007\_01
 
 # SYNOPSIS
 
-    use Git::Background 0.002;
+    use Git::Background 0.008;
 
     my $git = Git::Background->new($dir);
     my $future = $git->run('status', '-s');
@@ -71,6 +71,27 @@ or an array ref.
     my $git = Git::Background->new({
         git => [ qw( /usr/bin/sudo -u nobody git ) ],
     });
+
+### mode
+
+The `mode` option can either be `utf8` (the default) or `raw`. Depending
+on this option, one of the following commands is run before reading the
+stdout from `git`.
+
+        binmode $fh, ':raw';
+        binmode $fh, ':encoding(UTF-8)';
+
+The stderr of Git is always read as UTF-8.
+
+### split
+
+Enabled by default. The `split` option controls if the stdout output from
+git is split in lines and `chomp`ed or if the whole output is returned
+in one string.
+
+This option is ignored if `mode` is silently `raw`.
+
+The stderr of Git is always split.
 
 ## run( @CMD, \[ARGS\] )
 

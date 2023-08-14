@@ -22,7 +22,8 @@ use warnings;
 
 use Test::More 0.88;
 
-use Cwd            ();
+use Cwd ();
+use Encode;
 use File::Basename ();
 use File::Spec     ();
 use lib File::Spec->catdir( File::Basename::dirname( Cwd::abs_path __FILE__ ), 'lib' );
@@ -57,6 +58,29 @@ SKIP: {
     my ( $stdout, $stderr, $rc ) = $f->get;
 
     is_deeply( $stdout, [ "\x{4E16}\x{754C}\x{60A8}\x{597D}", "\x{4E16}\x{754C}\x{60A8}\x{597D}", ], 'get() returns correct stdout' );
+    is_deeply( $stderr, [ "\x{00E4} | \x{4E16}\x{754C}\x{60A8}\x{597D}", "\x{00F6} | \x{4E16}\x{754C}\x{60A8}\x{597D}", "\x{00FC} | \x{4E16}\x{754C}\x{60A8}\x{597D}", ], '... stderr' );
+    is( $rc, 0, '... and exit code' );
+
+    # Raw test
+    note('usage - 0 / Unicode on stdout, read as raw / no stderr');
+    $f = $obj->run(
+        '-x0',
+        "-o\x{4E16}\x{754C}\x{60A8}\x{597D}\n",
+        "-e\x{00E4} | \x{4E16}\x{754C}\x{60A8}\x{597D}\n",
+        "-o\x{4E16}\x{754C}\x{60A8}\x{597D}\n",
+        "-e\x{00F6} | \x{4E16}\x{754C}\x{60A8}\x{597D}\n",
+        "-e\x{00FC} | \x{4E16}\x{754C}\x{60A8}\x{597D}\n",
+        { mode => 'raw' },
+    );
+
+    isa_ok( $f, 'Git::Background::Future', 'run() returns a Git::Background::Future' );
+
+    ( $stdout, $stderr, $rc ) = $f->get;
+
+    is( scalar @{$stdout}, 1, q{output isn't split} );
+
+    my $stdout_decoded = decode( 'UTF-8', $stdout->[0] );
+    is( $stdout_decoded, "\x{4E16}\x{754C}\x{60A8}\x{597D}\n\x{4E16}\x{754C}\x{60A8}\x{597D}\n", 'get() returns correct stdout' );
     is_deeply( $stderr, [ "\x{00E4} | \x{4E16}\x{754C}\x{60A8}\x{597D}", "\x{00F6} | \x{4E16}\x{754C}\x{60A8}\x{597D}", "\x{00FC} | \x{4E16}\x{754C}\x{60A8}\x{597D}", ], '... stderr' );
     is( $rc, 0, '... and exit code' );
 }

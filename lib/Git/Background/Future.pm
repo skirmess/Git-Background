@@ -71,19 +71,22 @@ sub await {
     # slurp back stdout
     my $stdout_fh = $run->{_stdout};
     $stdout_fh->seek( 0, SEEK_SET ) or return $self->fail( "Cannot seek stdout: $stdout_fh: $!", 'seek' );
-    my @stdout = split /\r?\n/m, do {    ## no critic (RegularExpressions::RequireDotMatchAnything, RegularExpressions::RequireExtendedFormatting])
-        local $/;                        ## no critic (Variables::RequireInitializationForLocalVars)
-        scalar <$stdout_fh>;
-    };
+    my @stdout;
+    if ( $run->{_split} ) {
+        chomp( @stdout = <$stdout_fh> );
+    }
+    else {
+        push @stdout, do {
+            local $/;    ## no critic (Variables::RequireInitializationForLocalVars)
+            scalar <$stdout_fh>;
+        };
+    }
     return $self->fail( "Cannot read stdout: $stdout_fh: $!", 'readline' ) if $stdout_fh->error;
 
     # slurp back stderr
     my $stderr_fh = $run->{_stderr};
     $stderr_fh->seek( 0, SEEK_SET ) or return $self->fail( "Cannot seek stderr: $stderr_fh: $!", 'seek' );
-    my @stderr = split /\r?\n/m, do {    ## no critic (RegularExpressions::RequireDotMatchAnything, RegularExpressions::RequireExtendedFormatting])
-        local $/;                        ## no critic (Variables::RequireInitializationForLocalVars)
-        scalar <$stderr_fh>;
-    };
+    chomp( my @stderr = <$stderr_fh> );
     return $self->fail( "Cannot read stderr: $stderr_fh: $!", 'readline' ) if $stderr_fh->error;
 
     # get exit code and signal from git process
@@ -100,16 +103,15 @@ sub await {
 
     if (
         # fatal error
-        ( $exit_code == 128 ) ||
+        ( $exit_code == 128 )
 
         # usage error
-        ( $exit_code == 129 ) ||
+        || ( $exit_code == 129 )
 
         # non-zero return code
-        ( $exit_code && $run->{_fatal} )
+        || ( $exit_code && $run->{_fatal} )
       )
     {
-
         my $stderr  = join "\n", @stderr;
         my $message = length $stderr ? $stderr : "git exited with fatal exit code $exit_code but had no output to stderr";
 
@@ -195,7 +197,7 @@ Version 0.007_01
 
 =head1 SYNOPSIS
 
-    use Git::Background 0.002;
+    use Git::Background 0.008;
     my $future = Git::Background->run(qw(status -s));
 
     my @stdout = $future->stdout;
@@ -210,13 +212,11 @@ describes the changes to C<Future> specific to L<Git::Background>.
 
 =head2 UTF-8
 
-The module assumes that C<git>s output is UTF-8, which is the default.
-Before stdout and stderr from C<git> are read, L<Git::Background> turns on
-UTF-8 on the file handle with
+The default is to read the output from Git on its stdout and stderr as UTF-8.
+(See the C<mode> argument from the C<new> and C<run> method from
+L<Git::Background> on how to change that.)
 
-    binmode($fh, ':encoding(UTF-8)');
-
-The strings returned by the C<get>, C<stderr>, and C<stdout> string can
+The strings returned by the C<get>, C<stderr>, and C<stdout> methods can
 therefore contain wide characters. When you write this data to a file handle,
 you must ensure that the destination also uses a suitable encoding. This is
 necessary to correctly handle any wide characters in the data. You can do this

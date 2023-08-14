@@ -26,6 +26,7 @@ my %WriteMakefileArgs = (
     },
     TEST_REQUIRES => {
         Cwd                     => 0,
+        Encode                  => 0,
         Exporter                => 0,
         'File::Basename'        => 0,
         'File::Path'            => '2.07',
@@ -44,6 +45,7 @@ my %WriteMakefileArgs = (
 my %FallbackPrereqs = (
     Carp                    => 0,
     Cwd                     => 0,
+    Encode                  => 0,
     Exporter                => 0,
     'File::Basename'        => 0,
     'File::Path'            => '2.07',
