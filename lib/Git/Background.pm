@@ -20,7 +20,7 @@ use warnings;
 
 package Git::Background;
 
-our $VERSION = '0.007_01';
+our $VERSION = '0.007_02';
 
 use Carp ();
 use Path::Tiny 0.125 ();
@@ -260,7 +260,7 @@ Git::Background - use Git commands with L<Future>
 
 =head1 VERSION
 
-Version 0.007_01
+Version 0.007_02
 
 =head1 SYNOPSIS
 
