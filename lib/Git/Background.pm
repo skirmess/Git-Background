@@ -22,9 +22,8 @@ package Git::Background;
 
 our $VERSION = '0.007_01';
 
-use Carp       ();
-use File::Temp ();
-use Future 0.40;
+use Carp ();
+use Path::Tiny 0.125 ();
 use Proc::Background 1.30;
 use Scalar::Util ();
 
@@ -37,8 +36,6 @@ use Git::Background::Future;
 # options:
 #   - dir
 #   - fatal     (default 1)
-#   - mode      (default utf8)
-#   - split     (default 1)
 sub new {
     my $class = shift;
 
@@ -49,7 +46,6 @@ sub new {
 
         my $dir;
 
-        # first argument is a scalar or object
         if (
             @_
             && (
@@ -109,26 +105,39 @@ sub run {
         $config = $self->_process_args;
     }
 
-    my $stdout = File::Temp->new;
+    my $stdout;
+    my $stdout_fh;
+    my $stderr;
+    my $stderr_fh;
+    my $e;
+    my $ok;
+    {
+        local $@;    ## no critic (Variables::RequireInitializationForLocalVars)
+        $ok = eval {
+            $e         = 'Cannot create temporary file for stdout';
+            $stdout    = Path::Tiny->tempfile;
+            $e         = 'Cannot obtain file handle for stdout temp file';
+            $stdout_fh = $stdout->filehandle('>');
+            $e         = 'Cannot create temporary file for stdout';
+            $stderr    = Path::Tiny->tempfile;
+            $e         = 'Cannot obtain file handle for stderr temp file';
+            $stderr_fh = $stderr->filehandle('>');
+            1;
+        };
 
-    if ( $config->{_mode} eq 'raw' ) {
-        binmode $stdout, ':raw' or return Git::Background::Future->fail(q{Cannot set binmode ':raw'});
+        if ( !$ok ) {
+            if ( defined $@ && $@ ne q{} ) {
+                $e .= ": $@";
+            }
+        }
     }
-    elsif ( $config->{_mode} eq 'utf8' ) {
-        binmode $stdout, ':encoding(UTF-8)' or return Git::Background::Future->fail(q{Cannot set binmode ':encoding(UTF-8)'});
-    }
-    else {
-        Carp::croak "Invalid mode '$config->{_mode}'";
-    }
-
-    my $stderr = File::Temp->new;
-    binmode $stderr, ':encoding(UTF-8)' or return Git::Background::Future->fail(q{Cannot set binmode ':encoding(UTF-8)'});
+    Carp::croak $e if !$ok;
 
     # Proc::Background
     my $proc_args = {
         stdin         => undef,
-        stdout        => $stdout,
-        stderr        => $stderr,
+        stdout        => $stdout_fh,
+        stderr        => $stderr_fh,
         command       => [ @{ $config->{_git} }, @cmd ],
         autodie       => 1,
         autoterminate => 1,
@@ -136,7 +145,6 @@ sub run {
     };
 
     my $proc;
-    my $e;
     {
         local @_;    ## no critic (Variables::RequireInitializationForLocalVars)
         local $Carp::Internal{ (__PACKAGE__) } = 1;
@@ -157,7 +165,6 @@ sub run {
             _proc   => $proc,
             _stdout => $stdout,
             _stderr => $stderr,
-            _split  => ( defined $config->{_mode} && $config->{_mode} eq 'raw' ? 0 : $config->{_split} ),
         },
     );
 }
@@ -166,17 +173,12 @@ sub version {
     my ( $self, $args ) = @_;
 
     my @cmd = qw(--version);
-
-    my %args;
     if ( defined $args ) {
         Carp::croak 'usage: Git::Background->version([ARGS])' if !defined Scalar::Util::reftype($args) || Scalar::Util::reftype($args) ne 'HASH';
-        %args = %{$args};
+
+        push @cmd, $args;
     }
 
-    $args{mode}  = 'utf8';
-    $args{split} = 1;
-
-    push @cmd, \%args;
     my $version = eval {
         for my $line ( $self->run(@cmd)->stdout ) {
             if ( $line =~ s{ \A git \s version \s }{}xsm ) {
@@ -201,8 +203,6 @@ sub _process_args {
     my %config    = (
         _fatal => !!1,
         _git   => ['git'],
-        _mode  => 'utf8',
-        _split => 1,
     );
 
     # dir
@@ -216,15 +216,13 @@ sub _process_args {
         $config{_dir} = $self->{_dir};
     }
 
-    # fatal stdout_split stderr_split
-    for my $arg_name (qw(fatal split )) {
-        if ( exists $args->{$arg_name} ) {
-            $config{"_$arg_name"} = !!$args->{$arg_name};
-            delete $args_keys{$arg_name};
-        }
-        elsif ( exists $self->{"_$arg_name"} ) {
-            $config{"_$arg_name"} = $self->{"_$arg_name"};
-        }
+    # fatal
+    if ( exists $args->{fatal} ) {
+        $config{_fatal} = !!$args->{fatal};
+        delete $args_keys{fatal};
+    }
+    elsif ( exists $self->{_fatal} ) {
+        $config{_fatal} = $self->{_fatal};
     }
 
     # git
@@ -239,15 +237,6 @@ sub _process_args {
     }
     elsif ( exists $self->{_git} ) {
         $config{_git} = [ @{ $self->{_git} } ];
-    }
-
-    # mode
-    if ( exists $args->{mode} ) {
-        $config{_mode} = $args->{mode};
-        delete $args_keys{mode};
-    }
-    elsif ( exists $self->{_mode} ) {
-        $config{_mode} = $self->{_mode};
     }
 
     #
@@ -307,6 +296,8 @@ exception.
 The following options can be passed in the args hash to new. They are used
 as defaults for calls to C<run>.
 
+Current API available since 0.001.
+
 =head3 dir
 
 This will be passed as C<cwd> argument to L<Proc::Background> whenever you
@@ -339,27 +330,6 @@ or an array ref.
         git => [ qw( /usr/bin/sudo -u nobody git ) ],
     });
 
-=head3 mode
-
-The C<mode> option can either be C<utf8> (the default) or C<raw>. Depending
-on this option, one of the following commands is run before reading the
-stdout from C<git>.
-
-        binmode $fh, ':raw';
-        binmode $fh, ':encoding(UTF-8)';
-
-The stderr of Git is always read as UTF-8.
-
-=head3 split
-
-Enabled by default. The C<split> option controls if the stdout output from
-git is split in lines and C<chomp>ed or if the whole output is returned
-in one string.
-
-This option is ignored if C<mode> is silently C<raw>.
-
-The stderr of Git is always split.
-
 =head2 run( @CMD, [ARGS] )
 
 This runs the specified Git command in the background by passing it on to
@@ -385,6 +355,8 @@ Git process if the future is destroyed.
 
 Since version 0.004 C<run> C<croaks> if it gets called in void context.
 
+Current API available since 0.004.
+
 =head2 version( [ARGS] )
 
 Returns the version of the used Git binary or undef if no Git command was
@@ -399,6 +371,8 @@ and can be used to check if a Git is available.
     else {
         say "You have Git version $version";
     }
+
+Current API available since 0.001.
 
 =head1 EXAMPLES
 
@@ -426,7 +400,7 @@ Alternatively you can overwrite the directory for the call to clone:
 
     # then use the same object for working with the cloned repository
     my $future = $git->run('status', '-s');
-    my @dstdout = $future->stdout;
+    my @stdout = $future->stdout;
 
 =head1 SEE ALSO
 

@@ -2,7 +2,9 @@ Revision history for Git-Background
 
 {{$NEXT}}
 
-  - Add new option 'mode' and 'split' for new() and run().
+  - get() now returns 2 additional values, a Path::Tiny object for the
+    files containing stdout and stderr from git.
+  - added 2 new methods, path_stderr, and path_stdout.
   - Remove dependency on Test2::Plugin::UTF8.
 
 0.007_01  2023-08-05 16:02:13 UTC

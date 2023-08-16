@@ -40,6 +40,8 @@ exception.
 The following options can be passed in the args hash to new. They are used
 as defaults for calls to `run`.
 
+Current API available since 0.001.
+
 ### dir
 
 This will be passed as `cwd` argument to [Proc::Background](https://metacpan.org/pod/Proc%3A%3ABackground) whenever you
@@ -72,27 +74,6 @@ or an array ref.
         git => [ qw( /usr/bin/sudo -u nobody git ) ],
     });
 
-### mode
-
-The `mode` option can either be `utf8` (the default) or `raw`. Depending
-on this option, one of the following commands is run before reading the
-stdout from `git`.
-
-        binmode $fh, ':raw';
-        binmode $fh, ':encoding(UTF-8)';
-
-The stderr of Git is always read as UTF-8.
-
-### split
-
-Enabled by default. The `split` option controls if the stdout output from
-git is split in lines and `chomp`ed or if the whole output is returned
-in one string.
-
-This option is ignored if `mode` is silently `raw`.
-
-The stderr of Git is always split.
-
 ## run( @CMD, \[ARGS\] )
 
 This runs the specified Git command in the background by passing it on to
@@ -118,6 +99,8 @@ Git process if the future is destroyed.
 
 Since version 0.004 `run` `croaks` if it gets called in void context.
 
+Current API available since 0.004.
+
 ## version( \[ARGS\] )
 
 Returns the version of the used Git binary or undef if no Git command was
@@ -132,6 +115,8 @@ and can be used to check if a Git is available.
     else {
         say "You have Git version $version";
     }
+
+Current API available since 0.001.
 
 # EXAMPLES
 
@@ -159,7 +144,7 @@ Alternatively you can overwrite the directory for the call to clone:
 
     # then use the same object for working with the cloned repository
     my $future = $git->run('status', '-s');
-    my @dstdout = $future->stdout;
+    my @stdout = $future->stdout;
 
 # SEE ALSO
 

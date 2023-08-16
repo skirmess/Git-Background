@@ -37,43 +37,38 @@ use Git::Background 0.003;
 note('new()');
 {
     my $obj = Git::Background->new;
-    isa_ok( $obj, 'Git::Background', 'new returned object' );
+    isa_ok( $obj, 'Git::Background' );
 
     ok( $obj->{_fatal}, 'fatal is true' );
     is_deeply( $obj->{_git}, ['git'], 'git is configured to git' );
     ok( !exists $obj->{_dir}, 'dir is not set' );
-    is( $obj->{_mode},  'utf8', 'mode is set to utf8' );
-    is( $obj->{_split}, 1,      'split is set to 1' );
 }
 
-note(q{new( { fatal => 0, git => 'my-git', mode => ':raw', split => 0 } )});
+note(q{new( { fatal => 0, git => 'my-git' } )});
 {
-    my $obj = Git::Background->new( { fatal => 0, git => 'my-git', mode => 'raw', split => 0 } );
-    isa_ok( $obj, 'Git::Background', 'new returned object' );
+    my $obj = Git::Background->new( { fatal => 0, git => 'my-git' } );
+    isa_ok( $obj, 'Git::Background' );
 
     ok( !$obj->{_fatal}, 'fatal is false' );
     is_deeply( $obj->{_git}, ['my-git'], 'git is configured to my-git' );
     ok( !exists $obj->{_dir}, 'dir is not set' );
-    is( $obj->{_mode},  'raw', 'mode is set to raw' );
-    is( $obj->{_split}, q{},   'stdout_split is set to \'\'' );
 }
 
-note(q{new( { git => [qw(nice -19 git)], stdout_split => 'something true' } )});
+note(q{new( { git => [qw(nice -19 git)] } )});
 {
-    my $obj = Git::Background->new( { git => [qw(nice -19 git)], split => 'something true' } );
-    isa_ok( $obj, 'Git::Background', 'new returned object' );
+    my $obj = Git::Background->new( { git => [qw(nice -19 git)] } );
+    isa_ok( $obj, 'Git::Background' );
 
     ok( $obj->{_fatal}, 'fatal is true' );
     is_deeply( $obj->{_git}, [qw(nice -19 git)], 'git is configured to nice -19 git' );
     ok( !exists $obj->{_dir}, 'dir is not set' );
-    is( $obj->{_split}, 1, 'split is set to 1' );
 }
 
 note('new($dir)');
 {
     my $dir = tempdir();
     my $obj = Git::Background->new($dir);
-    isa_ok( $obj, 'Git::Background', 'new returned object' );
+    isa_ok( $obj, 'Git::Background' );
 
     ok( $obj->{_fatal}, 'fatal is true' );
     is_deeply( $obj->{_git}, ['git'], 'git is configured to git' );
@@ -84,7 +79,7 @@ note(q{new( $dir, { fatal => 0, git => 'my-git' } )});
 {
     my $dir = tempdir();
     my $obj = Git::Background->new( $dir, { fatal => 0, git => 'my-git' } );
-    isa_ok( $obj, 'Git::Background', 'new returned object' );
+    isa_ok( $obj, 'Git::Background' );
 
     ok( !$obj->{_fatal}, 'fatal is false' );
     is_deeply( $obj->{_git}, ['my-git'], 'git is configured to my-git' );
@@ -99,7 +94,7 @@ note('new($dir_obj)');
     my $dir_obj = Local::Thing->new($dir);
 
     my $obj = Git::Background->new($dir_obj);
-    isa_ok( $obj, 'Git::Background', 'new returned object' );
+    isa_ok( $obj, 'Git::Background' );
 
     ok( $obj->{_fatal}, 'fatal is true' );
     is_deeply( $obj->{_git}, ['git'], 'git is configured to git' );

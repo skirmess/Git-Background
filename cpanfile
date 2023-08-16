@@ -1,6 +1,6 @@
 requires 'Carp';
-requires 'File::Temp';
 requires 'Future', '0.49';
+requires 'Path::Tiny', '0.125';
 requires 'Proc::Background', '1.30';
 requires 'Scalar::Util';
 requires 'parent';
@@ -34,7 +34,6 @@ on develop => sub {
     requires 'List::Util', '1.33';
     requires 'MetaCPAN::Client';
     requires 'Module::Info';
-    requires 'Path::Tiny';
     requires 'Perl::Critic', '1.150';
     requires 'Perl::Critic::MergeProfile';
     requires 'Perl::Critic::Policy::Bangs::ProhibitBitwiseOperators', '1.12';
@@ -223,6 +222,7 @@ on develop => sub {
         requires 'Dist::Zilla::Util::BundleInfo';
         requires 'Dist::Zilla::Util::ExpandINI::Reader';
         requires 'File::Compare';
+        requires 'File::Temp';
         requires 'File::pushd';
         requires 'Module::CPANfile', '1.1004';
         requires 'Module::CoreList', '2.77';

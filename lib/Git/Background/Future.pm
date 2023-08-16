@@ -23,10 +23,7 @@ package Git::Background::Future;
 our $VERSION = '0.007_01';
 
 use Future 0.49;
-
 use parent 'Future';
-
-use File::Temp qw(:seekable);
 
 sub new {
     my ( $class, $run ) = @_;
@@ -46,7 +43,7 @@ sub await {
     $self->set_udata( '_run', undef );
 
     my $e;
-    my $ok = 1;
+    my $ok;
     {
         local $@;    ## no critic (Variables::RequireInitializationForLocalVars)
         $ok = eval {
@@ -68,26 +65,29 @@ sub await {
     }
     return $self->fail( $e, 'Proc::Background' ) if !$ok;
 
-    # slurp back stdout
-    my $stdout_fh = $run->{_stdout};
-    $stdout_fh->seek( 0, SEEK_SET ) or return $self->fail( "Cannot seek stdout: $stdout_fh: $!", 'seek' );
+    my $stdout_file = $run->{_stdout};
+    my $stderr_file = $run->{_stderr};
     my @stdout;
-    if ( $run->{_split} ) {
-        chomp( @stdout = <$stdout_fh> );
-    }
-    else {
-        push @stdout, do {
-            local $/;    ## no critic (Variables::RequireInitializationForLocalVars)
-            scalar <$stdout_fh>;
-        };
-    }
-    return $self->fail( "Cannot read stdout: $stdout_fh: $!", 'readline' ) if $stdout_fh->error;
+    my @stderr;
+    {
+        local $@;    ## no critic (Variables::RequireInitializationForLocalVars)
+        $ok = eval {
+            $e      = 'Cannot read stdout';
+            @stdout = $stdout_file->lines_utf8( { chomp => 1 } );
 
-    # slurp back stderr
-    my $stderr_fh = $run->{_stderr};
-    $stderr_fh->seek( 0, SEEK_SET ) or return $self->fail( "Cannot seek stderr: $stderr_fh: $!", 'seek' );
-    chomp( my @stderr = <$stderr_fh> );
-    return $self->fail( "Cannot read stderr: $stderr_fh: $!", 'readline' ) if $stderr_fh->error;
+            $e      = 'Cannot read stderr';
+            @stderr = $stderr_file->lines_utf8( { chomp => 1 } );
+
+            1;
+        };
+
+        if ( !$ok ) {
+            if ( defined $@ && $@ ne q{} ) {
+                $e .= ": $@";
+            }
+        }
+    }
+    return $self->fail( $e, 'Path::Tiny' ) if !$ok;
 
     # get exit code and signal from git process
     my $exit_code = $run->{_proc}->exit_code;
@@ -96,6 +96,8 @@ sub await {
         \@stdout,
         \@stderr,
         $exit_code,
+        $stdout_file,
+        $stderr_file,
     );
 
     # git died by a signal
@@ -112,8 +114,10 @@ sub await {
         || ( $exit_code && $run->{_fatal} )
       )
     {
-        my $stderr  = join "\n", @stderr;
-        my $message = length $stderr ? $stderr : "git exited with fatal exit code $exit_code but had no output to stderr";
+        my $message = join "\n", @stderr;
+        if ( !length $message ) {
+            $message = "git exited with fatal exit code $exit_code but had no output to stderr";
+        }
 
         # $run goes out of scope and the file handles and the proc object are freed
         return $self->fail( $message, 'git', @result );
@@ -125,9 +129,7 @@ sub await {
 
 sub exit_code {
     my ($self) = @_;
-
-    my @result = $self->get;
-    return $result[2];
+    return ( $self->get )[2];
 }
 
 sub is_done {
@@ -148,6 +150,16 @@ sub is_ready {
     return $self->SUPER::is_ready;
 }
 
+sub path_stderr {
+    my ($self) = @_;
+    return ( $self->get )[4];
+}
+
+sub path_stdout {
+    my ($self) = @_;
+    return ( $self->get )[3];
+}
+
 sub state {    ## no critic (Subroutines::ProhibitBuiltinHomonyms)
     my ($self) = @_;
     $self->_await_if_git_is_done;
@@ -156,16 +168,12 @@ sub state {    ## no critic (Subroutines::ProhibitBuiltinHomonyms)
 
 sub stderr {
     my ($self) = @_;
-
-    my @result = $self->get;
-    return @{ $result[1] };
+    return @{ ( $self->get )[1] };
 }
 
 sub stdout {
     my ($self) = @_;
-
-    my @result = $self->get;
-    return @{ $result[0] };
+    return @{ ( $self->get )[0] };
 }
 
 sub _await_if_git_is_done {
@@ -202,7 +210,8 @@ Version 0.007_01
 
     my @stdout = $future->stdout;
 
-    my ($stdout_ref, $stderr_ref, $exit_code) = $future->get;
+    my ($stdout_ref, $stderr_ref, $exit_code, $stdout_path, $stderr_path) =
+        $future->get;
 
 =head1 DESCRIPTION
 
@@ -213,8 +222,6 @@ describes the changes to C<Future> specific to L<Git::Background>.
 =head2 UTF-8
 
 The default is to read the output from Git on its stdout and stderr as UTF-8.
-(See the C<mode> argument from the C<new> and C<run> method from
-L<Git::Background> on how to change that.)
 
 The strings returned by the C<get>, C<stderr>, and C<stdout> methods can
 therefore contain wide characters. When you write this data to a file handle,
@@ -231,6 +238,8 @@ by setting the encoding of the destination filehandle, e.g.:
 New C<Git::Background::Future> objects should be constructed by using the
 C<run> method of L<Git::Background>.
 
+Current API available since 0.002.
+
 =head2 await
 
 Blocks and waits until the Git process finishes.
@@ -241,9 +250,15 @@ This method is called by C<get> or C<failure>.
 
 See L<Future/await> for more information.
 
+Current API available since 0.002.
+
 =head2 exit_code
 
 Calls C<get>, then returns the exit code of the Git process.
+
+Because this command calls C<get>, the same exceptions can be thrown.
+
+Current API available since 0.002.
 
 =head2 failure
 
@@ -253,34 +268,89 @@ undef if the future finished successfully, otherwise it returns a list with
     $message, $category, @details
 
 For the C<$category> C<git>, C<@details> is a list of C<stdout_ref>,
-C<stderr_ref>, and C<exit_code>.
+C<stderr_ref>, C<exit_code>, C<stdout_path>, and C<stderr_path>. See
+C<get> for a description of these values.
+
+Current API available since 0.008.
 
 =head2 get
 
 Waits for the running Git process to finish by calling C<await>. Throws a
 L<Future::Exception> if the C<Future> didn't finish successfully. Returns
-the stdout, stderr and exit code of the Git process.
+a list of  C<stdout_ref>, C<stderr_ref>, C<exit_code>, C<stdout_path>,
+and C<stderr_path>.
 
     my $git = Git::Background->new($dir);
     my $future = $git->run('status', '-s');
     # waits for 'git status -s' to finish
     my ($stdout_ref, $stderr_ref, $rc) = $future->get;
 
+=head3 stdout_ref
+
+An array reference containing the stdout from git, split into lines
+and chomped.
+
+=head3 stderr_ref
+
+An array reference containing the stderr from git, split into lines
+and chomped.
+
+=head3 exit_code
+
+The exit code from git.
+
+=head3 stdout_path
+
+A L<Path::Tiny> object of a file containing the stdout from Git. This
+can be used to read the data with a different binmode.
+
+=head3 stderr_path
+
+A L<Path::Tiny> object of a file containing the stderr from Git.
+
+Current API available since 0.008.
+
 =head2 is_done
 
 L<Future/is_done>
+
+Current API available since 0.002.
 
 =head2 is_failed
 
 L<Future/is_failed>
 
+Current API available since 0.002.
+
 =head2 is_ready
 
 L<Future/is_ready>
 
+Current API available since 0.002.
+
+=head2 path_stderr
+
+Calls C<get>, then returns the L<Path::Tiny> object for the file
+containing the stderr from Git.
+
+Because this command calls C<get>, the same exceptions can be thrown.
+
+Current API available since 0.008.
+
+=head2 path_stdout
+
+Calls C<get>, then returns the L<Path::Tiny> object for the file
+containing the stdout from Git.
+
+Because this command calls C<get>, the same exceptions can be thrown.
+
+Current API available since 0.008.
+
 =head2 state
 
 L<Future/state>
+
+Current API available since 0.002.
 
 =head2 stderr
 
@@ -292,6 +362,8 @@ Because this command calls C<get>, the same exceptions can be thrown.
 Note: C<get> returns all the output lines as array reference, C<stderr>
 returns a list.
 
+Current API available since 0.002.
+
 =head2 stdout
 
 Calls C<get>, then returns all the lines written by the Git command to
@@ -302,9 +374,11 @@ Because this command calls C<get>, the same exceptions can be thrown.
 Note: C<get> returns all the output lines as array reference, C<stdout>
 returns a list.
 
+Current API available since 0.002.
+
 =head1 SEE ALSO
 
-L<Git::Background>, L<Future>
+L<Git::Background>, L<Future>, L<Path::Tiny>
 
 =head1 SUPPORT
 

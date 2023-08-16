@@ -34,12 +34,12 @@ use Git::Background 0.003;
 my $bindir = File::Spec->catdir( File::Basename::dirname( File::Basename::dirname( Cwd::abs_path __FILE__ ) ), 'corpus', 'bin' );
 
 my $obj = Git::Background->new( { git => [ $^X, File::Spec->catdir( $bindir, 'my-git.pl' ) ] } );
-isa_ok( $obj, 'Git::Background', 'new returned object' );
+isa_ok( $obj, 'Git::Background' );
 
 #
 note('fatal - 128');
 my $f = $obj->run( '-x128', '-ostdout 3', '-ostdout 3 line 2', '-eerror 3', '-eerror 3 line 2', { fatal => 0 } );
-isa_ok( $f, 'Git::Background::Future', 'run() returns a Git::Background::Future' );
+isa_ok( $f, 'Git::Background::Future' );
 my $e = exception { $f->get };
 isa_ok( $e, 'Future::Exception' );
 ok( !$f->is_done,  '!is_done' );
@@ -56,7 +56,7 @@ is( $rc, 128, 'error contains correct exit code' );
 #
 note('usage - 129');
 $f = $obj->run( '-x129', '-ostdout 3', '-ostdout 3 line 2', '-eerror 3', '-eerror 3 line 2', { fatal => 0 } );
-isa_ok( $f, 'Git::Background::Future', 'run() returns a Git::Background::Future' );
+isa_ok( $f, 'Git::Background::Future' );
 $e = exception { $f->get };
 isa_ok( $e, 'Future::Exception' );
 ok( !$f->is_done,  '!is_done' );
@@ -73,7 +73,7 @@ is( $rc, 129, 'error contains correct exit code' );
 #
 note('usage - 1');
 $f = $obj->run( '-x1', '-ostdout 3', '-ostdout 3 line 2', '-eerror 3', '-eerror 3 line 2' );
-isa_ok( $f, 'Git::Background::Future', 'run() returns a Git::Background::Future' );
+isa_ok( $f, 'Git::Background::Future' );
 $e = exception { $f->get };
 isa_ok( $e, 'Future::Exception' );
 ok( !$f->is_done,  '!is_done' );
@@ -90,7 +90,7 @@ is( $rc, 1, 'error contains correct exit code' );
 #
 note('usage - 7 / no stderr');
 $f = $obj->run( '-x7', '-ostdout 3', '-ostdout 3 line 2' );
-isa_ok( $f, 'Git::Background::Future', 'run() returns a Git::Background::Future' );
+isa_ok( $f, 'Git::Background::Future' );
 $e = exception { $f->get };
 isa_ok( $e, 'Future::Exception' );
 ok( !$f->is_done,  '!is_done' );
@@ -103,11 +103,6 @@ is( $category, 'git',                                                           
 is_deeply( $stdout, [ 'stdout 3', 'stdout 3 line 2' ], 'error contains correct stdout' );
 is_deeply( $stderr, [],                                'error contains no stderr' );
 is( $rc, 7, 'error contains correct exit code' );
-
-#
-note('invalid mode');
-$e = exception { $f = $obj->run( '-x0', { mode => 'invalid_mode' } ) };
-like( $e, qr{ \A \QInvalid mode 'invalid_mode'\E }xsm, 'croaks if an invalid mode is given' );
 
 #
 note('version(ARRAY)');
