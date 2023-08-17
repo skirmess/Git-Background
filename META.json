@@ -56,7 +56,7 @@
          }
       }
    },
-   "release_status" : "testing",
+   "release_status" : "stable",
    "resources" : {
       "bugtracker" : {
          "web" : "https://github.com/skirmess/Git-Background/issues"
@@ -68,6 +68,6 @@
          "web" : "https://github.com/skirmess/Git-Background"
       }
    },
-   "version" : "0.007_02"
+   "version" : "0.008"
 }
 
